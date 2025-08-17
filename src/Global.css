@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital@0;1&display=swap');
+
+:root {
+  --background: #11161F;
+  --navbar: #1D2229;
+  --border: #45484D;
+  --white: #fff;
+  --blue: #1e6d8c;
+  --black: #000;
+  --p: #BEC3C0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  list-style-type: none;
+  font-family: "Rubik", sans-serif;
+  direction: rtl;
+}
+
+body {
+  background-color: var(--background);
+}
+
+.container {
+  width: 90%;
+  margin: auto;
+  max-width: 1000px;
+}
+
+/* Start Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--border);
+}
+/* End Scrollbar */
