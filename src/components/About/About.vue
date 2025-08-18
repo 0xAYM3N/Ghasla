@@ -3,7 +3,7 @@ import './About.css'
 </script>
 
 <template>
-  <div class="about">
+  <div class="about" id="about">
     <div class="container">
       <div class="box">
         <img src="/assets/about.png" alt="عن التطبيق">

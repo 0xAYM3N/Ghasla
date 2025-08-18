@@ -1,6 +1,6 @@
 .about .container {
   display: flex;
-  margin-bottom: 100px;
+  padding-block: 150px;
 }
 
 .about .box {
