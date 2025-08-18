@@ -1,0 +1,85 @@
+.service .container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 100px;
+}
+
+.service .title {
+  display: flex;
+  justify-content: center;
+}
+
+.service .title h1 {
+  color: var(--white);
+  margin-block: 50px;
+}
+
+.service .card {
+  background-color:var(--navbar);
+  border: 1px solid var(--border);
+  text-align: center;
+  width: 300px;
+  border-radius: 16px;
+  transition: .3s linear;
+}
+
+.service .card:hover {
+  border: 1px solid #666;
+}
+
+.service .card .header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-block: 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.service .card h3 {
+  color: var(--white);
+  font-size: 22px;
+  padding: 10px;
+}
+
+.service .card .icon {
+  font-size: 30px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.service .card h2 {
+  color: var(--p);
+}
+
+.service .card .price {
+  font-size: 26px;
+  font-weight: bold;
+  color: var(--blue);
+  margin-bottom: 15px;
+}
+
+.service h2 {
+  color: var(--white);
+  font-size: 20px;
+  padding: 10px;
+}
+
+.service .card a {
+  background-color: var(--blue);
+  color: var(--white);
+  font-size: 18px;
+  text-align: center;
+  border-radius: 5px;
+  padding: 10px 20px;
+  transition: .2s linear;
+}
+
+.service .card a:hover {
+  opacity: 0.6;
+}

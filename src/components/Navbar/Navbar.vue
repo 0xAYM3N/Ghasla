@@ -14,8 +14,8 @@ import './Navbar.css'
 
       <div class="links">
         <router-link to="/">الرئيسية</router-link>
-        <router-link to="/">من نحن</router-link>
-        <router-link to="/">العروض</router-link>
+        <a href="#about">من نحن</a>
+        <a href="#service">الخدمات</a>
       </div>
 
       <div class="btn">

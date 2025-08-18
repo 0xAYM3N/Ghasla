@@ -29,8 +29,8 @@ import './style.css'
                 <input type="submit" value="Signup" />
             </div>
             <div class="auth-link">
-              Already have an account?
-              <router-link to="/login">Login</router-link>
+              هل لديك حساب؟
+              <router-link to="/login">تسجيل دخول</router-link>
             </div>
         </form>
     </div>

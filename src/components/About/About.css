@@ -1,6 +1,6 @@
 .about .container {
   display: flex;
-  margin-bottom: 100px;
+  padding-block: 150px;
 }
 
 .about .box {
@@ -15,6 +15,7 @@
   width: 400px;
   border-radius: 20px;
   border: 2px solid var(--border);
+  background-color: var(--navbar);
 }
 
 .about .box .text {
