@@ -57,11 +57,6 @@
   50% { transform: scale(1.2); }
 }
 
-.service .card h2 {
-  color: var(--p);
-  padding-block: 100px;
-}
-
 .service .card .price {
   font-size: 26px;
   font-weight: bold;
@@ -70,7 +65,7 @@
 }
 
 .service .card h2 {
-  color: var(--white);
+  color: var(--p);
   font-size: 20px;
   padding: 10px;
 }
