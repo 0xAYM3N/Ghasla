@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar/Navbar.vue'
 import Hero from '../components/Hero/Hero.vue'
 import About from '../components/About/About.vue'
 import Service from '../components/Service/Service.vue'
-import Card from '../components/Card/Card.vue'
+import Footer from '../components/Footer/Footer.vue'
 </script>
 
 <template>
@@ -11,5 +11,5 @@ import Card from '../components/Card/Card.vue'
   <Hero />
   <About />
   <Service />
-  <!--<Card />-->
+  <Footer />
 </template>

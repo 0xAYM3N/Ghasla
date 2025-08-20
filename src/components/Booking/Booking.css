@@ -1,0 +1,14 @@
+.booking {
+  padding-top: 150px;
+}
+
+.booking .container {
+  background-color: var(--navbar);
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+}
+
+.booking .choose-wash-type h2 {
+  color: var(--white);
+}
