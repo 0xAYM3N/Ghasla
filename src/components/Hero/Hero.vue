@@ -10,7 +10,7 @@ import './Hero.css'
           من خلال منصتنا... غسيل سيارتك صار أسهل من أي وقت
         </h1>
         <div class="btn">
-          <router-link href="#contact">
+          <router-link to="/Booking">
             احجز الآن
           </router-link>
         </div> 
