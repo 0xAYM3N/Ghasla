@@ -1,0 +1,23 @@
+.footer .container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background-color: var(--navbar);
+  border: 1px solid var(--border);
+  padding: 1.2rem 2rem;
+  text-align: center;
+  color: var(--p);
+  border-radius: 16px;
+  margin-block: 50px;
+  gap: 20px;
+}
+
+.footer .links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.footer .links a {
+  color: var(--white);
+}
