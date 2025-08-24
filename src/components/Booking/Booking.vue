@@ -1,5 +1,11 @@
 <script>
 import './Booking.css'
+
+const box = document.querySelectorAll('.box');
+
+box.onclick = () => {
+  box.classList.add('active')
+}
 </script>
 
 <template>
@@ -8,14 +14,24 @@ import './Booking.css'
       <div class="form">
         <div class="choose-wash-type">
           <h2>اختر نوع الغسل</h2>
-          <input type="checkbox" name="internal" value="internal">
-          <label for="vehicle1">غسل داخلي</label><br>
-          <input type="checkbox" name="external" value="external">
-          <label for="external">غسل خارجي</label><br>
-          <input type="checkbox" name="Full" value="Full">
-          <label for="Full">غسل شامل</label><br><br>
-          <input type="submit" value="Submit">
+          <div class="wash-types">
+            <div class="box" data-value="internal">
+              <h3>غسل داخلي</h3>
+            </div>
+            <div class="box" data-value="external">
+              <h3>غسل خارجي</h3>
+            </div>
+            <div class="box" data-value="full">
+              <h3>غسل شامل</h3>
+            </div>
+          </div>
+          <div class="btn">
+            <input type="submit" value="Submit">
+          </div>
         </div>
+
+
+
       </div>
     </div>
   </div>
