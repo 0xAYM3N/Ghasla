@@ -15,7 +15,7 @@ import './Service.css'
         </div>
         <h2>تنظيف الهيكل الخارجي فقط</h2>
         <div class="price">100$</div>
-        <router-link to="/">احجز الان</router-link>
+        <router-link to="/Booking">احجز الان</router-link>
       </div>
 
       <div class="card">
@@ -25,7 +25,7 @@ import './Service.css'
         </div>
         <h2>تنظيف شامل من الداخل</h2>
         <div class="price">100$</div>
-        <router-link to="/">احجز الان</router-link>
+        <router-link to="/Booking">احجز الان</router-link>
       </div>
 
       <div class="card">
@@ -35,7 +35,7 @@ import './Service.css'
         </div>
         <h2>يشمل الداخلي + الخارجي</h2>
         <div class="price">200$</div>
-        <router-link to="/">احجز الان</router-link>
+        <router-link to="/Booking">احجز الان</router-link>
       </div>
     </div>
   </div>

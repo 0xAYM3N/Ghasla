@@ -1,7 +1,10 @@
+.service {
+  padding-block: 80px;
+}
+
 .service .container {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 100px;
 }
 
 .service .title {
