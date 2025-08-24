@@ -1,11 +1,6 @@
 <script>
 import './Booking.css'
 
-const box = document.querySelectorAll('.box');
-
-box.onclick = () => {
-  box.classList.add('active')
-}
 </script>
 
 <template>
