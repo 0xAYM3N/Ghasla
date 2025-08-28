@@ -25,9 +25,9 @@ import './Footer.css'
 
       <div class="service-links">
         <h3>الخدمات</h3>
-        <a href="/#wash">غسيل خارجي</a>
-        <a href="/#interior">تنظيف داخلي</a>
-        <a href="/#premium">باقات مميزة</a>
+        <a href="/#service">غسيل خارجي</a>
+        <a href="/#service">غسيل داخلي</a>
+        <a href="/#service">غسيل شامل</a>
       </div>
 
       <address class="contact">
