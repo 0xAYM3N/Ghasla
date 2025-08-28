@@ -1,5 +1,6 @@
 .booking .container {
   padding-top: 150px;
+  padding-bottom: 30px;
 }
 
 .booking .choose-wash-type {
@@ -17,7 +18,9 @@
 
 .booking .choose-wash-type .wash-types {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
 .booking .choose-wash-type .wash-types .box {
@@ -28,13 +31,14 @@
   width: 300px;
   height: 150px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   cursor: pointer;
-  transition: border-color 0.3s;
+  transition: 0.3s;
 }
 
 .booking .choose-wash-type .wash-types .box.active {
-  border: 1px solid #007bff; 
+  background-color: var(--navbar);
+  border: 2px solid var(--blue); 
 }
 
 .booking .choose-wash-type .box h3 {
@@ -43,7 +47,15 @@
   padding: 10px;
 }
 
-.booking .choose-wash-type .btn input[type=submit] {
+/* Buttons */
+.booking .btn { 
+  display: flex; 
+  justify-content: space-between;
+  margin-inline: 10px;
+  gap: 10px; 
+}
+
+.booking .btn button {
   text-align: center;
   background-color: var(--background);
   border: 1px solid var(--border);
@@ -53,9 +65,217 @@
   margin-block: 20px;
   cursor: pointer;
   border-radius: 10px;
+  transition: 0.3s;
 }
 
-.booking .choose-wash-type .btn {
+.booking .btn button i { 
+  font-size: 13px;
+}
+
+.booking .btn .btn-next {
+  background-color: var(--blue);
+  border-color: var(--blue);
+}
+.booking .btn .btn-next:hover { 
+  filter: brightness(1.1);
+}
+
+.booking .btn .btn-prev {
+  background-color: var(--navbar);
+  border-color: var(--border);
+  color: #cfcfcf;
+}
+.booking .btn .btn-prev:hover {
+  background-color: var(--border);
+  color: var(--white);
+}
+
+.booking .btn .btn-submit {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+.booking .btn .btn-submit:hover {
+  filter: brightness(1.1);
+}
+
+/* Step2 Select Day And Time */
+.booking .select-day-and-time {
+  background-color: var(--navbar);
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.booking .select-day-and-time .select-day h2 {
+  color: var(--white);
+  text-align: center;
+  margin-block: 30px;
+}
+
+.booking .select-day-and-time .days ,.times{
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.booking .select-day-and-time .select-day .days h3,
+.booking .select-day-and-time .select-day .times h3 {
+  display: flex;
+  background-color: var(--background);
+  color: var(--p);
+  padding: 12px 30px;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-wrap: wrap;
+  transition: .3s;
+}
+
+.booking .select-day-and-time .select-day .days h3:hover,
+.booking .select-day-and-time .select-time .times h3:hover {
+  background-color: var(--blue);
+}
+
+.booking .select-day-and-time .select-day .days h3.active,
+.booking .select-day-and-time .select-time .times h3.active {
+  background-color: var(--blue);
+  color: var(--white);
+}
+/* Step3 Select Location */
+.booking .select-location {
+  background-color: var(--navbar);
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.booking .select-location h2 {
+  color: var(--white);
+  text-align: center;
+  margin-block: 30px;
+}
+
+/* Step4  Choose Payment Method */
+.booking .choose-payment-method {
+  background-color: var(--navbar);
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.booking .choose-payment-method h2{
+  color: var(--white);
+  text-align: center;
+  margin-block: 30px;
+}
+
+.booking .btn button.prev {
+  background-color: var(--navbar);
+  border-color: var(--border);
+  color: #ccc;
+}
+
+/* Progress Bar */
+.booking .progress-container {
+  display: flex;
+  margin-bottom: 30px;
+  direction: ltr;
+}
+
+.booking .progress-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  color: var(--p);
+  font-weight: bold;
+}
+
+.booking .progress-step::before {
+  content: attr(data-step);
+  display: block;
+  margin: 0 auto 10px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 50%;
+  background-color: #ccc;
+  color: white;
+  z-index: 1;
+  position: relative;
+}
+
+.booking .progress-step.active::before,
+.booking .progress-step.completed::before {
+  background-color: var(--blue);
+}
+
+.booking .progress-step.completed::before {
+  background-color: #28a745;
+}
+
+.booking .progress-step::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  width: 100%;
+  height: 4px;
+  background-color: #ccc;
+  z-index: 0;
+}
+
+.booking .progress-step:last-child::after {
+  display: none;
+}
+
+.booking .progress-step.completed::after {
+  background-color: var(--blue);
+}
+
+.booking .progress-step span {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+/* Popup */
+.booking .popup {
+  position: fixed;
+  top: 0; right: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.booking .popup-content {
+  background-color: var(--navbar);
+  border: 1px solid var(--border);
+  text-align: center;
+  border-radius: 12px;
+  padding: 20px;
+  width: 400px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+
+.booking .popup-content h3 {
+  color: var(--white);
+  margin-bottom: 30px;
+}
+
+.booking .popup-content button {
+  background-color: var(--blue);
+  border: none;
+  padding: 10px 40px;
+  font-size: 18px;
+  border-radius: 8px;
+  color: var(--white);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.booking .popup-content button:hover {
+  background-color: #0ea5e9;
 }
