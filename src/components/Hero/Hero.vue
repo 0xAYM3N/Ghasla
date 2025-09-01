@@ -7,17 +7,14 @@ import './Hero.css'
     <div class="container">
       <div class="text">
         <h1>
-          من خلال منصتنا... غسيل سيارتك صار أسهل من أي وقت
+          من خلال منصتنا <span>غسيل سيارتك</span>
+          صار أسهل من أي وقت!
         </h1>
         <div class="btn">
           <router-link to="/Booking">
             احجز الآن
           </router-link>
-        </div> 
-      </div>
-
-      <div class="img">
-        <img src="/assets/hero.png">
+        </div>
       </div>
     </div>
   </div>
