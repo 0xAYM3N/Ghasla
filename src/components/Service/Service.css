@@ -1,10 +1,12 @@
 .service {
-  padding-block: 80px;
+  padding-top: 100px;
 }
 
 .service .container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .service .title {
@@ -18,30 +20,49 @@
 }
 
 .service .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   background-color:var(--navbar);
   border: 1px solid var(--border);
-  text-align: center;
-  width: 300px;
+  width: 315px;
+  gap: 15px;
   padding-bottom: 20px;
   border-radius: 16px;
-  transition: .3s linear;
-  gap: 15px;
+  transition: .2s linear;
 }
 
 .service .card:hover {
-  border: 1px solid #666;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
+}
+
+.service .card.popular {
+  border: 2px solid var(--blue);
+}
+
+.service .card .badge {
+  position: absolute;
+  top: -12px;
+  right: 15px;
+  background-color: var(--blue);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 6px;
 }
 
 .service .card .header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
+  background: rgba(255, 255, 255, 0.02); 
   gap: 10px;
+  padding: 20px;
   padding-block: 15px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
 }
 
 .service .card .header h3 {
@@ -50,27 +71,34 @@
   padding: 10px;
 }
 
-.service .card .header .icon {
-  font-size: 30px;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-}
-
-.service .card .price {
-  font-size: 26px;
-  font-weight: bold;
+.service .card .header .price {
+  background: rgba(0, 123, 255, 0.1);
   color: var(--blue);
-  margin-bottom: 15px;
+  
+  font-size: 22px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 8px;
 }
 
-.service .card h2 {
+.service .card .features {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-inline: 10px;
+}
+
+.service .card .features li {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
   color: var(--p);
-  font-size: 20px;
-  padding: 10px;
+  gap: 8px;
+}
+
+.service .card .features i {
+  color: var(--blue);
 }
 
 .service .card a {
@@ -79,11 +107,25 @@
   font-size: 18px;
   text-align: center;
   border-radius: 5px;
-  margin-inline: 10px;
+  margin: 20px 10px 0px 10px;
   padding: 10px 20px;
   transition: .2s linear;
 }
 
 .service .card a:hover {
-  opacity: 0.6;
+  opacity: 0.6; 
 }
+
+@media (max-width: 768px) {
+  .service .card {
+    width: 100%;
+    max-width: 90%;
+  }
+}
+
+
+
+
+
+
+
