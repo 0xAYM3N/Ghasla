@@ -30,11 +30,11 @@ import './Footer.css'
         <a href="/#service">غسيل شامل</a>
       </div>
 
-      <address class="contact">
+      <div class="contact">
         <h3>تواصل معنا</h3>
         <p><i class="fas fa-phone"></i> (555) 123-4567</p>
         <p><i class="fas fa-envelope"></i> info@ghasla.com</p>
-      </address>
+      </div>
     </div>
 
     <div class="copyright">

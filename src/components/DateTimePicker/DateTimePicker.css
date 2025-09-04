@@ -1,0 +1,129 @@
+.dtp {
+  display: flex;
+  flex: 1;
+  gap: 2rem;
+  margin: auto;
+  padding: 1rem;
+  border-radius: 16px;
+  direction: ltr;
+  color: var(--p);
+}
+
+/* Calendar */
+.dtp .calendar {
+  flex: 1;
+}
+
+.dtp .calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: var(--white);
+}
+
+.dtp .calendar-header button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  font-size: 20px;
+  border-radius: 3px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.dtp .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+
+.dtp .calendar-day {
+  font-weight: bold;
+  text-align: center;
+  color: var(--p);
+}
+
+.dtp .calendar-cell {
+  color: var(--white);
+  text-align: center;
+  padding: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dtp .calendar-cell:hover {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.dtp .calendar-cell.today {
+  border: 1px solid var(--blue);
+}
+
+.dtp .calendar-cell.selected {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.dtp .calendar-cell.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Times */
+.dtp .times {
+  flex: 1;
+}
+
+.dtp .times-title {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--white);
+}
+
+.dtp .times-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.dtp .times-list input {
+  display: none;
+}
+
+.dtp .times-list label {
+  display: block;
+  text-align: center;
+  padding: 0.5rem;
+  border: 1px solid var(--blue);
+  border-radius: 0.5rem;
+  color: var(--blue);
+  cursor: pointer;
+  transition: 0.2s;
+  background: var(--background);
+}
+
+.dtp .times-list input:checked + label {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.dtp .times-selected {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--p);
+}
+
+@media (max-width: 768px) {
+  .dtp {
+    flex-direction: column;
+  }
+}
