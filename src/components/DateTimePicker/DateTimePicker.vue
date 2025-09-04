@@ -11,7 +11,6 @@ const emit = defineEmits(["update:modelDate", "update:modelTime"])
 const selectedDate = ref(props.modelDate)
 const selectedTime = ref(props.modelTime)
 
-// sync with parent
 watch(() => props.modelDate, (val) => selectedDate.value = val || "")
 watch(() => props.modelTime, (val) => selectedTime.value = val || "")
 
@@ -55,7 +54,6 @@ const daysInMonth = computed(() => {
   return days
 })
 
-// تحويل التاريخ لـ yyyy-mm-dd (ثابت للـ API)
 const formatDateForApi = (date) => {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, "0")
@@ -63,7 +61,6 @@ const formatDateForApi = (date) => {
   return `${y}-${m}-${d}`
 }
 
-// للعرض فقط (dd/mm/yyyy)
 const formattedDate = computed(() =>
   selectedDate.value
     ? new Date(selectedDate.value).toLocaleDateString("en-GB", {
