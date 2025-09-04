@@ -123,10 +123,11 @@ const nextMonth = () => {
     <!-- Calendar -->
     <div class="calendar">
       <div class="calendar-header">
-        <button @click="prevMonth">‹</button>
+        <button @click="nextMonth">‹</button>
         <span>{{ monthYear }}</span>
-        <button @click="nextMonth">›</button>
+        <button v-if="!isCurrentMonth" @click="prevMonth">›</button>
       </div>
+
       <div class="calendar-grid">
         <div class="calendar-day" v-for="day in weekDays" :key="day">
           {{ day }}
