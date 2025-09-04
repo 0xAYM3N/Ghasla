@@ -279,3 +279,85 @@
 .booking .popup-content button:hover {
   background-color: #0ea5e9;
 }
+
+
+
+
+
+
+
+
+
+/* YEAH */
+
+/* Calendar & Time Side by Side */
+.calendar-time-wrapper {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 20px;
+  direction: ltr;
+}
+
+/* Calendar */
+.calendar {
+  background-color: var(--background);
+  padding: 10px;
+  border-radius: 10px;
+  min-width: 280px;
+}
+
+.calendar .month-header {
+  text-align: center;
+  color: var(--white);
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.calendar .days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.calendar .days h3 {
+  background-color: var(--navbar);
+  color: var(--p);
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.calendar .days h3.active,
+.calendar .days h3:hover {
+  background-color: var(--blue);
+  color: var(--white);
+}
+
+/* Times */
+.times {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.times h3 {
+  background-color: var(--background);
+  color: var(--p);
+  padding: 12px 30px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.times h3.active,
+.times h3:hover {
+  background-color: var(--blue);
+  color: var(--white);
+}
+

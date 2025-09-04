@@ -4,12 +4,14 @@ import Home from '../Pages/Home.vue'
 import Login from '../Pages/Login.vue'
 import Signup from '../Pages/Signup.vue'
 import Booking from '../Pages/Booking.vue'
+import Dashboard from '../Pages/Dashboard.vue'
 
 const routes = [
   { path: '/', component: Home },
   { path: '/login', component: Login },
   { path: '/signup', component: Signup },
   { path: '/booking', component: Booking },
+  { path: '/dashboard', component: Dashboard },
 ]
 
 const router = createRouter({
