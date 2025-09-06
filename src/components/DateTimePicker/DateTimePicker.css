@@ -79,26 +79,42 @@
 /* Times */
 .dtp .times {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+
 }
 
-.dtp .times-title {
+.dtp .times .times-title {
   text-align: center;
   margin-bottom: 0.5rem;
   font-weight: bold;
+  color: var(--white); 
+  background-color: var(--background);
+  color: var(--p);
+  padding: 12px 30px;
+  border-radius: 10px;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.dtp .times .times-title.active { 
+  background-color: var(--blue);
   color: var(--white);
 }
 
-.dtp .times-list {
+.dtp .times  .times-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
 }
 
-.dtp .times-list input {
+.dtp .times .times-list input {
   display: none;
 }
 
-.dtp .times-list label {
+.dtp .times .times-list label {
   display: block;
   text-align: center;
   padding: 0.5rem;
@@ -110,12 +126,12 @@
   background: var(--background);
 }
 
-.dtp .times-list input:checked + label {
+.dtp .times .times-list input:checked + label {
   background: var(--blue);
   color: var(--white);
 }
 
-.dtp .times-selected {
+.dtp .times .times-selected {
   margin-top: 1rem;
   text-align: center;
   font-size: 0.9rem;
