@@ -13,6 +13,7 @@ const form = ref({
   password: '',
   confirmPassword: ''
 })
+
 const message = ref('')
 const isSubmitting = ref(false)
 
@@ -34,7 +35,7 @@ async function submitSignupForm() {
   }
 
   if (form.value.password !== form.value.confirmPassword) {
-    message.value = ' كلمتا المرور غير متطابقتين'
+    message.value = 'كلمتا المرور غير متطابقتين'
     return
   }
 
@@ -47,15 +48,15 @@ async function submitSignupForm() {
       password: form.value.password
     })
 
-    userStore.setToken(res.data.accessToken, res.data.user)
+    userStore.setToken(res.data.accessToken)
 
     router.push('/')
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+    console.error(error)
 
-    if (err.response?.data === 'Email already exists') {
+    if (error.response?.data === 'Email already exists') {
       message.value = 'البريد الإلكتروني مستخدم بالفعل'
-    } else if (err.response?.status === 500) {
+    } else if (error.response?.status === 500) {
       message.value = 'خطأ في الخادم، حاول لاحقاً'
     } else {
       message.value = 'فشل إنشاء الحساب، تحقق من اتصالك'
@@ -65,7 +66,6 @@ async function submitSignupForm() {
   }
 }
 </script>
-
 
 <template>
   <div class="auth-page">
@@ -94,10 +94,10 @@ async function submitSignupForm() {
           </div>
 
           <div class="auth-row auth-button">
-            <input 
-              type="submit" 
-              :disabled="isSubmitting" 
-              :value="isSubmitting ? 'جارٍ الإرسال...' : 'إنشاء حساب'" 
+            <input
+              type="submit"
+              :disabled="isSubmitting"
+              :value="isSubmitting ? 'جارٍ الإرسال...' : 'إنشاء حساب'"
             />
           </div>
 

@@ -15,7 +15,7 @@ const form = ref({
 const message = ref('')
 const isSubmitting = ref(false)
 
-async function submitLoginForm() {
+function submitLoginForm() {
   if (!form.value.email || !form.value.password) {
     message.value = '⚠️ الرجاء إدخال البريد وكلمة المرور'
     return
@@ -24,30 +24,29 @@ async function submitLoginForm() {
   isSubmitting.value = true
   message.value = ''
 
-  try {
-    const res = await axios.post('http://localhost:3000/login', {
-      email: form.value.email,
-      password: form.value.password
+  axios.post('http://localhost:3000/login', {
+    email: form.value.email,
+    password: form.value.password
+  })
+    .then((response) => {
+      userStore.setToken(response.data.accessToken)
+
+      router.push('/')
     })
+    .catch((error) => {
+      console.error(error)
 
-    // حفظ التوكن والمستخدم في Pinia
-    userStore.setToken(res.data.accessToken, res.data.user)
-
-    // توجيه للصفحة الرئيسية
-    router.push('/')
-  } catch (err) {
-    console.error(err)
-
-    if (err.response?.status === 400) {
-      message.value = '⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة'
-    } else if (err.response?.status === 500) {
-      message.value = 'خطأ في الخادم، حاول لاحقاً'
-    } else {
-      message.value = 'فشل تسجيل الدخول، تحقق من اتصالك'
-    }
-  } finally {
-    isSubmitting.value = false
-  }
+      if (error.response?.status === 400) {
+        message.value = '⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة'
+      } else if (error.response?.status === 500) {
+        message.value = '⚠️ خطأ في الخادم، حاول لاحقاً'
+      } else {
+        message.value = '⚠️ فشل تسجيل الدخول، تحقق من اتصالك'
+      }
+    })
+    .finally(() => {
+      isSubmitting.value = false
+    })
 }
 </script>
 
