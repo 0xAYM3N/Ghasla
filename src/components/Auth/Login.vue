@@ -17,7 +17,7 @@ const isSubmitting = ref(false)
 
 function submitLoginForm() {
   if (!form.value.email || !form.value.password) {
-    message.value = '⚠️ الرجاء إدخال البريد وكلمة المرور'
+    message.value = 'الرجاء إدخال البريد وكلمة المرور'
     return
   }
 
@@ -37,11 +37,11 @@ function submitLoginForm() {
       console.error(error)
 
       if (error.response?.status === 400) {
-        message.value = '⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة'
+        message.value = 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
       } else if (error.response?.status === 500) {
-        message.value = '⚠️ خطأ في الخادم، حاول لاحقاً'
+        message.value = 'خطأ في الخادم، حاول لاحقاً'
       } else {
-        message.value = '⚠️ فشل تسجيل الدخول، تحقق من اتصالك'
+        message.value = 'فشل تسجيل الدخول، تحقق من اتصالك'
       }
     })
     .finally(() => {
