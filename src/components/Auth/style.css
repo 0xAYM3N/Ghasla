@@ -18,7 +18,7 @@
     align-items: center;
     justify-content: center;
     margin-top: 50px;
-    color: #fff;
+    color: var(--white);
     font-size: 30px;
     font-weight: 600;
 }
@@ -65,7 +65,7 @@
     background: var(--blue);
     width: 55px;
     height: 100%;
-    color: #fff;
+    color: var(--white);
     font-size: 20px;
     border-radius: 5px 0 0 5px;
 }
@@ -94,4 +94,10 @@
 
 .auth-link a {
     color: var(--blue);
+}
+
+.error-msg p {
+  font-size: 15px;
+  margin-block: 10px;
+  color: var(--error);
 }

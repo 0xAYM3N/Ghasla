@@ -1,5 +1,21 @@
-<script>
+<script setup>
 import './Navbar.css'
+import { onMounted } from 'vue'
+import { useUserStore } from '../../stores/userStore'
+
+const userStore = useUserStore()
+
+onMounted(async () => {
+  // حمّل التوكن من localStorage إذا موجود
+  if (!userStore.token) {
+    userStore.loadToken()
+  }
+
+  // إذا فيه توكن ومافي بيانات مستخدم → جيب البروفايل
+  if (userStore.token && !userStore.username) {
+    await userStore.fetchProfile()
+  }
+})
 </script>
 
 <template>
@@ -7,7 +23,7 @@ import './Navbar.css'
     <div class="container">
       <div class="logo">
         <router-link to="/">
-          <img src="/logo.png">
+          <img src="/logo.png" />
           غسلة
         </router-link>
       </div>
@@ -19,8 +35,14 @@ import './Navbar.css'
       </div>
 
       <div class="btn">
-        <router-link to="/login">تسجيل الدخول</router-link>
+        <router-link v-if="!userStore.isLoggedIn" to="/login">
+          تسجيل الدخول
+        </router-link>
+        <router-link v-else to="/dashboard" class="dashboard-btn">
+          لوحة التحكم
+        </router-link>
       </div>
     </div>
   </div>
 </template>
+

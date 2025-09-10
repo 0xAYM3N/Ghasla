@@ -1,0 +1,26 @@
+.navbar-dashboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--navbar);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  z-index: 999;
+}
+
+.navbar-dashboard .toggle-btn,
+.navbar-dashboard .logout-btn {
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.navbar-dashboard .toggle-btn:hover,
+.navbar-dashboard .logout-btn:hover {
+  opacity: .8;
+}

@@ -12,6 +12,10 @@
 /* Calendar */
 .dtp .calendar {
   flex: 1;
+  background-color: var(--background);
+  padding: 10px;
+  border-radius: 10px;
+  min-width: 280px;
 }
 
 .dtp .calendar-header {

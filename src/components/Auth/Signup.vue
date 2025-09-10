@@ -1,72 +1,108 @@
 <script setup>
 import './style.css'
-import { ref } from "vue";
-import axios from "axios";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '../../stores/userStore'
+import axios from 'axios'
+
+const router = useRouter()
+const userStore = useUserStore()
 
 const form = ref({
-  username: "",
-  email: "",
-  password: "",
-  confirmPassword: ""
-});
+  email: '',
+  password: '',
+  confirmPassword: ''
+})
+const message = ref('')
+const isSubmitting = ref(false)
 
-const message = ref("");
-
-// Sent Data To Api
 async function submitSignupForm() {
-  if (form.value.password !== form.value.confirmPassword) {
-    message.value = "كلمة المرور غير متطابقة ❌";
-    return;
+  if (!form.value.email || !form.value.password || !form.value.confirmPassword) {
+    message.value = 'الرجاء إدخال جميع الحقول'
+    return
   }
 
-  try {
-    const response = await axios.post(
-      "https://jsonplaceholder.typicode.com/posts",
-      {
-        username: form.value.username,
-        email: form.value.email,
-        password: form.value.password,
-        confirmPassword: form.value.confirmPassword,
-      },
-    );
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailPattern.test(form.value.email)) {
+    message.value = 'الرجاء إدخال بريد إلكتروني صالح'
+    return
+  }
 
-    console.log("✅ Response:", response.data);
-  } catch (error) {
-    console.log("Error In The Sent", error);
+  if (form.value.password.length < 6) {
+    message.value = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
+    return
+  }
+
+  if (form.value.password !== form.value.confirmPassword) {
+    message.value = ' كلمتا المرور غير متطابقتين'
+    return
+  }
+
+  isSubmitting.value = true
+  message.value = ''
+
+  try {
+    const res = await axios.post('http://localhost:3000/register', {
+      email: form.value.email,
+      password: form.value.password
+    })
+
+    userStore.setToken(res.data.accessToken, res.data.user)
+
+    router.push('/')
+  } catch (err) {
+    console.error(err)
+
+    if (err.response?.data === 'Email already exists') {
+      message.value = 'البريد الإلكتروني مستخدم بالفعل'
+    } else if (err.response?.status === 500) {
+      message.value = 'خطأ في الخادم، حاول لاحقاً'
+    } else {
+      message.value = 'فشل إنشاء الحساب، تحقق من اتصالك'
+    }
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
+
 
 <template>
   <div class="auth-page">
     <div class="container">
       <div class="auth-box">
-        <div class="auth-title">
-          <span>انشاء حساب</span>
-        </div>
+        <div class="auth-title"><span>إنشاء حساب</span></div>
+
         <form @submit.prevent="submitSignupForm">
           <div class="auth-row">
-            <i class="fas fa-user"></i>
-            <input v-model="form.username" type="text" placeholder="Username" name="username" required />
-          </div>
-          <div class="auth-row">
             <i class="fa-solid fa-envelope"></i>
-            <input v-model="form.email" type="email" placeholder="Email" name="email" required />
+            <input v-model="form.email" type="email" placeholder="Email" required />
           </div>
+
           <div class="auth-row">
             <i class="fas fa-lock"></i>
-            <input v-model="form.password" type="password" placeholder="Password" name="password" required />
+            <input v-model="form.password" type="password" placeholder="Password" required />
           </div>
+
           <div class="auth-row">
             <i class="fas fa-lock"></i>
-            <input v-model="form.confirmPassword" type="password" placeholder="Confirm Password" name="confirmPass" required />
+            <input v-model="form.confirmPassword" type="password" placeholder="Confirm Password" required />
           </div>
-          <p v-if="message">{{ message }}</p>
+
+          <div class="error-msg">
+            <p v-if="message">{{ message }}</p>
+          </div>
+
           <div class="auth-row auth-button">
-            <input type="submit" value="Signup"/>
+            <input 
+              type="submit" 
+              :disabled="isSubmitting" 
+              :value="isSubmitting ? 'جارٍ الإرسال...' : 'إنشاء حساب'" 
+            />
           </div>
+
           <div class="auth-link">
-            هل لديك حساب؟
+            لديك حساب؟
             <router-link to="/login">تسجيل دخول</router-link>
           </div>
         </form>
@@ -74,3 +110,4 @@ async function submitSignupForm() {
     </div>
   </div>
 </template>
+
