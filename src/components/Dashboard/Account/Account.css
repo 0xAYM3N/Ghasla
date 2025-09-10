@@ -1,0 +1,117 @@
+.account {
+  display: flex;
+  flex-direction: column;
+  background: var(--navbar);
+  color: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 30px auto;
+  padding: 25px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.account h2 {
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 22px;
+  color: var(--blue);
+}
+
+.account .form-row {
+  margin-bottom: 20px;
+}
+
+.account .form-row label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--p);
+}
+
+.account .form-row .input-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.account .form-row .input-group input {
+  flex: 1 1 auto; 
+  max-width: 100%;
+  min-width: 150px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--white);
+  box-sizing: border-box; 
+}
+
+.account .form-row .input-group input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.account .form-row .input-group .edit-btn,
+.account .form-row .input-group .save-btn,
+.account .form-row .input-group .cancel-btn {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.account .form-row .input-group .edit-btn {
+  background: var(--blue);
+  color: var(--white);
+}
+.account .form-row .input-group .edit-btn:hover { opacity: .8; }
+
+.account .form-row .input-group .save-btn {
+  background: var(--green);
+  color: var(--white);
+}
+.account .form-row .input-group .save-btn:hover { opacity: .8; }
+
+.account .form-row .input-group .cancel-btn {
+  background: var(--red);
+  color: var(--white);
+}
+
+.account .form-row .input-group .cancel-btn:hover { opacity: .8; }
+
+.account .error {
+  margin-top: 5px;
+  font-size: 13px;
+  color: var(--error);
+}
+
+.account .toast {
+  background: var(--green);
+  color: var(--white);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 15px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .account .input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .account .form-row .input-group .edit-btn,
+  .account .form-row .input-group .save-btn,
+  .account .form-row .input-group .cancel-btn {
+    width: 100%;
+  }
+}
+

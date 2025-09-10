@@ -161,7 +161,7 @@ const nextMonth = () => {
         </li>
       </ul>
       <p class="times-selected">
-        {{ formattedDate }} – {{ selectedTime || "No time" }}
+        {{ formattedDate }} – {{ selectedTime || "اختر الوقت" }}
       </p>
     </div>
   </div>
