@@ -1,23 +1,19 @@
 // server.js
-const jsonServer = require("json-server");
-const auth = require("json-server-auth");
-const cors = require("cors");
+const jsonServer = require('json-server')
+const auth = require('json-server-auth')
+const cors = require('cors')
 
-const app = jsonServer.create();
-const router = jsonServer.router("db.json");
+const app = jsonServer.create()
+const router = jsonServer.router('db.json') // ربط ملف db.json
 
-const rules = auth.rewriter({
-  users: 600
-});
+app.db = router.db // 👈 هذا أهم خطوة: ربط db مع app
 
-app.db = router.db;
-
-app.use(cors());
-app.use(rules);
-app.use(auth);
-app.use(router);
+app.use(cors())
+app.use(jsonServer.defaults())
+app.use(auth) // 👈 إضافة auth قبل الراوتر
+app.use(router)
 
 app.listen(3000, () => {
-  console.log("✅ JSON Server with Auth running on http://localhost:3000");
-});
+  console.log('🚀 JSON Server with Auth running on http://localhost:3000')
+})
 

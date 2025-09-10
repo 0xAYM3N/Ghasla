@@ -8,14 +8,39 @@ import { useUserStore } from '../../stores/userStore'
 import './Booking.css'
 
 const userStore = useUserStore()
+const currentUser = ref(null)
 const userLoaded = ref(false)
 
-onMounted(() => {
-  userStore.loadUserFromStorage()
-  userLoaded.value = true
-})
+function decodeToken(token) {
+  try {
+    const base64 = token.split('.')[1]
+    const payload = JSON.parse(atob(base64))
+    return payload
+  } catch {
+    return {}
+  }
+}
 
-const isLoggedIn = computed(() => userStore.isLoggedIn && userLoaded.value)
+async function fetchUser() {
+  if (!userStore.token) return
+  const payload = decodeToken(userStore.token)
+  const userId = payload.sub || payload.id
+  if (!userId) return
+
+  try {
+    const { data } = await axios.get(`http://localhost:3000/users/${userId}`, {
+      headers: { Authorization: `Bearer ${userStore.token}` }
+    })
+    currentUser.value = data
+    userLoaded.value = true
+  } catch (err) {
+    console.error("❌ خطأ بجلب بيانات المستخدم:", err)
+  }
+}
+
+onMounted(fetchUser)
+
+const isLoggedIn = computed(() => !!userStore.token && !!currentUser.value)
 
 const step = ref(1)
 const showDone = ref(false)
@@ -33,14 +58,13 @@ function selectType(type) {
   selectedPrice.value = type.price
 }
 
-const selectedDay = ref(null) 
+const selectedDay = ref(null)
 const selectedTimeStr = ref(null)
-const datetime = ref(null)      
+const datetime = ref(null)
 const markerPosition = ref([24.7136, 46.6753])
 
 const showPopup = ref(false)
 const popupMessage = ref("")
-
 function openPopup(msg) {
   popupMessage.value = msg
   showPopup.value = true
@@ -84,67 +108,39 @@ function formatTime(unix) {
 }
 
 const nextStep = () => {
-  if (step.value === 1 && !selectedType.value) { 
-    openPopup("⚠️ الرجاء اختيار نوع الغسل أولاً"); 
-    return 
-  }
-  if (step.value === 2 && !datetime.value) {
-    openPopup("⚠️ الرجاء اختيار اليوم والوقت قبل المتابعة"); 
-    return 
-  }
+  if (step.value === 1 && !selectedType.value) { openPopup("⚠️ اختر نوع الغسل"); return }
+  if (step.value === 2 && !datetime.value) { openPopup("⚠️ اختر اليوم والوقت"); return }
   step.value++
 }
 const prevStep = () => { if (step.value > 1) step.value-- }
 
 async function submitBookingForm() {
   if (!isLoggedIn.value) {
-    openPopup("❌ يجب تسجيل الدخول أولاً")
+    openPopup("❌ لازم تسجل دخول")
     return
   }
 
   try {
-    const now = new Date()
-    const createdAt = now.toISOString()
+    const now = new Date().toISOString()
 
     const bookingData = {
-      userId: userStore.id,
+      userId: currentUser.value.id,
       type: selectedType.value,
       location: markerPosition.value,
       price: selectedPrice.value,
       datetime: datetime.value,
-      createdAt,
-      notify: `تم إنشاء حجز جديد: ${selectedType.value} بسعر ${selectedPrice.value}$`
+      createdAt: now,
+      notify: `تم إنشاء حجز ${selectedType.value} بسعر ${selectedPrice.value}$`
     }
 
-    await axios.post("http://localhost:3000/bookings", bookingData)
-
-    const userRes = await axios.get(`http://localhost:3000/users/${userStore.id}`)
-    const user = userRes.data
-
-    const newBalance = parseFloat((parseFloat(user.balance) || 0) - selectedPrice.value).toFixed(2)
-    const newTransaction = {
-      id: Date.now(),
-      type: "خصم",
-      amount: selectedPrice.value,
-      createdAt,
-      notify: `تم خصم ${selectedPrice.value}$`
-    }
-
-    await axios.patch(`http://localhost:3000/users/${userStore.id}`, {
-      balance: newBalance,
-      transactions: [...(user.transactions || []), newTransaction]
-    })
-
-    userStore.setUser({
-      ...userStore.$state,
-      balance: parseFloat(newBalance),
-      transactions: [...(user.transactions || []), newTransaction]
+    await axios.post("http://localhost:3000/bookings", bookingData, {
+      headers: { Authorization: `Bearer ${userStore.token}` }
     })
 
     showDone.value = true
   } catch (error) {
     console.error("Error:", error)
-    openPopup("❌ حدث خطأ أثناء إرسال الحجز")
+    openPopup("❌ مشكلة أثناء إرسال الحجز")
   }
 }
 </script>
@@ -223,7 +219,9 @@ async function submitBookingForm() {
             <p><strong>التاريخ:</strong> {{ datetime ? formatDate(datetime) : "" }}</p>
             <p><strong>الوقت:</strong> {{ datetime ? formatTime(datetime) : "" }}</p>
           </div>
+
           <WalletPayment :amount="selectedPrice" :onSuccess="submitBookingForm" />
+
           <div class="btn">
             <button type="button" class="btn-prev" @click="prevStep">رجوع</button>
           </div>

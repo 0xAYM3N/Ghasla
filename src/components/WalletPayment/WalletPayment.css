@@ -83,15 +83,15 @@
   color: var(--white);
 }
 
-.wallet-payment .popup-content .popup-popup-buttons .close-popup { 
+.wallet-payment .popup-content .popup-popup-buttons .cancel-btn { 
   background-color: var(--blue); 
 }
 
-.wallet-payment .popup-content .popup-buttons .confirm-pay { 
+.wallet-payment .popup-content .popup-buttons .confirm-btn { 
   background-color: var(--red); 
 }
 
-.wallet-payment .popup-content .popup-buttons .close-popup:hover,
-.wallet-payment .popup-content .popup-buttons .confirm-pay:hover { 
+.wallet-payment .popup-content .popup-buttons .cancel-btn:hover,
+.wallet-payment .popup-content .popup-buttons .confirm-btn:hover { 
   opacity: .7; 
 }

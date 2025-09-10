@@ -45,7 +45,9 @@ async function submitSignupForm() {
   try {
     const res = await axios.post('http://localhost:3000/register', {
       email: form.value.email,
-      password: form.value.password
+      password: form.value.password,
+      balance: 0,
+      transactions: []
     })
 
     userStore.setToken(res.data.accessToken)

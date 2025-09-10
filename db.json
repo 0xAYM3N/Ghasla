@@ -1,122 +1,315 @@
 {
   "users": [
     {
-      "email": "ahmed@gmail.com",
-      "password": "$2a$10$s9UnKg4TzIB3nM67IEfQsOVlZRiNFGEGFr7aKuzToRuyzWupQxx8a",
-      "username": "aaaaaa",
-      "id": 1
-    },
-    {
-      "email": "fgfgfg@gmail.com",
-      "password": "$2a$10$PVP7LjatUZcxm5REiVmjVOABn0aX5otleiiPjB4H8emGnqV3ul7BO",
-      "username": "fgfgfg",
-      "id": 2
+      "id": "ecef",
+      "email": "aaaaaa@gmail.com",
+      "password": "aaaaaa"
     },
     {
       "email": "ahmed@gmail.com",
-      "password": "$2a$10$SDPfG0HHSezNpXlPe9bk2e8TM6c21hQG99lcyPQmWvXjDtJzv//..",
-      "username": "ahmedOne",
-      "id": 3
+      "password": "$2a$10$kveefrVpyBzx6rAbIVaRxOOi8Fk/Rilh6SO/RArztxrP0JrEjx93u",
+      "id": "keTvmS3"
     },
     {
-      "email": "ahmed@gmail.Com",
-      "password": "$2a$10$qUhrZUyyTBmIohaZT00KdeFHpm1gnmAcP0htqXWt7nfuopNPh.MfW",
-      "username": "ahmed",
-      "id": 4
+      "email": "aaaaaatt@gmail.com",
+      "password": "$2a$10$xLYc9sgMyAkQgNM1QDhUjOvEaIk43KRWLv7uk3AwkY23R5WOwmq3e",
+      "id": "zJ1UOUK"
     },
     {
-      "email": "ahmeda@gmail.com",
-      "password": "$2a$10$gh/z4O0fPjCjqY4u.CiCwOHvTWhMvCqzLfWPd4pv.GCb5Yrm.Rbu.",
-      "username": "ahmed",
-      "id": 5
-    },
-    {
-      "email": "ahmedeerer@gmail.com",
-      "password": "$2a$10$/9VQ1UBm0fbKOIK0eKKf/u71ImRnrL2kLLhha5sjy/wwu9lCmUx4m",
-      "username": "ahmed",
-      "id": 6
-    },
-    {
-      "email": "azazaz@gmail.com",
-      "password": "$2a$10$bfhTpnN1P7zBGArq/mcfduryyaDOL5rGazIof32VPNvCqIHy0donC",
-      "username": "azazaz",
-      "id": 7
-    },
-    {
-      "email": "aaaaa@gmail.com",
-      "password": "$2a$10$saUR6GF2vcGKj9EkfE0EIOo642BfhBbHQvFHD0CiH3TwYgOiurzgK",
-      "username": "aaaaa",
-      "id": 8
-    },
-    {
-      "email": "aaaaaat@gmail.com",
-      "password": "$2a$10$RGyut1nPyr1DOZRcXg0wvuEAsKz6eNAdNBrUjaQHYkqXwFrZcWWm2",
-      "username": "aaaaa",
-      "id": 9
-    },
-    {
-      "email": "a@gm",
-      "password": "$2a$10$lSmWV7AymsHjBUGkEUt0IusMtix78HvTVO7XPDasQBSJFOe5sk0b.",
-      "username": "aaaaaa",
-      "id": 10
-    },
-    {
-      "email": "aaaaaaa@gmail.com",
-      "password": "$2a$10$yZPjgtsWLiuDclGLq9McCuG/Bicf/G08OT3Ymp33V9LBYI3FPbY/u",
-      "username": "aaaaaa",
-      "id": 11
-    },
-    {
-      "email": "aaaaada@gmail.com",
-      "password": "$2a$10$BMGrRaMGV0Za0EUs30M8WepelJoWil5XqIYz7GkN1J7xJNqS1H.lm",
-      "id": 12
-    },
-    {
-      "email": "aaaaaa@gm",
-      "password": "$2a$10$Ufp5FpPYLY3.rQ//gJMBRO5PxXHpfRa8AehpDtxFkPRfgKDelIS/G",
-      "id": 13
-    },
-    {
-      "email": "aaa@gmail.com",
-      "password": "$2a$10$LBCUi0be5xqPmUDaHCUgvOMl2QBWf5iJT/6D2d4LaoFJ1jFpSqgqm",
-      "id": 14
-    },
-    {
-      "email": "aaaaaa@gmail.c",
-      "password": "$2a$10$8JXXyA17izwTREDJChtOEOBoQ.UaUywU/t3PCt4zSUF2GyxnWcLfi",
-      "id": 15
-    },
-    {
-      "email": "pp@gmail.com",
-      "password": "$2a$10$xP8trBVzDLk5R0BGgpi67ufdvKWHxUK6fCWtEGuYgiq7guxvN7KrO",
-      "id": 16
+      "email": "ahmed1@gmail.com",
+      "password": "$2a$10$EQoiaR7UsT2o/HQda/5T9eyeWjALyiIp8/J/PucyoH8lT63wCFj6O",
+      "id": "0jMBKMm"
     },
     {
       "email": "okokok@gmail.com",
-      "password": "$2a$10$9SFH67k.NV83jqz7T93SyeloYJwf.aM3/e1zBLe7JUk9itOD0Q382",
-      "id": 17
+      "password": "$2a$10$vIdVbtHqtVlPe714GRmLdOx0AJLPjnv3vaRdpxv7ua0BT4jKfvLVa",
+      "id": "dCQvuT5"
     },
     {
-      "email": "aaaaaa@gmail.Com",
-      "password": "$2a$10$BirhBQg9Vu2jmeKQm6mtAeIi187IG5ooccJb9PA.4zn/ym8x/xBKO",
-      "id": 18
-    },
-    {
-      "email": "ahmed@gmail.com",
-      "password": "$2a$10$.Qy6CAKNneFeG09xvkxZbemnzitEemLZsF19oK/bZB1CXyz/Gvsce",
-      "id": 19
-    },
-    {
-      "email": "aaaaaa@gmail.com",
-      "password": "$2a$10$4EfTbkzqnakwjvPRq.N61efg0kZ9ImCgt3Y/.qCxEksFbdh9RcL6m",
-      "id": 20
+      "email": "omar@gmail.com",
+      "password": "$2a$10$rY/yWO0rNN6rvllXK5STA.Tzh/IGXmV0oX.2cEvFQoxtq3nuc11IO",
+      "balance": 100,
+      "transactions": [],
+      "id": "WVDuYOB"
     },
     {
       "email": "foo@gmail.com",
-      "password": "$2a$10$VXofN6kak01HQ5XwVGOGc.FBEsF1fYYQOK4IRqO7l4AP23IQbyYzC",
-      "id": 21
+      "password": "$2a$10$Teu50/zZK4KsGrE/KOfSxO8TsE07wRn0WbAH6raOVTyp2IchC5GIi",
+      "balance": 122,
+      "transactions": [
+        {
+          "id": 1757514725601,
+          "type": "إضافة رصيد",
+          "amount": 100,
+          "date": "2025-09-10T14:32:05.601Z",
+          "createdAt": "2025-09-10T14:32:05.601Z"
+        },
+        {
+          "id": 1757514902458,
+          "type": "إضافة رصيد",
+          "amount": 22,
+          "date": "2025-09-10T14:35:02.458Z",
+          "createdAt": "2025-09-10T14:35:02.458Z",
+          "notify": "تم إضافة رصيد قدره 22$"
+        }
+      ],
+      "id": "6UG932S",
+      "notify": [
+        {
+          "id": 1757514725601,
+          "message": "تم إضافة رصيد قدره 100$",
+          "createdAt": "2025-09-10T14:32:05.601Z"
+        }
+      ]
+    },
+    {
+      "email": "aymenaymen@gmail.com",
+      "password": "$2a$10$Q5iy6DIdzQ7ay0VYzAPduucoPBKp6pEsttPNzU3wF3DC9uR6CFiVq",
+      "balance": "-30.00",
+      "transactions": [
+        {
+          "id": 1757514933769,
+          "type": "إضافة رصيد",
+          "amount": 20,
+          "date": "2025-09-10T14:35:33.769Z",
+          "createdAt": "2025-09-10T14:35:33.769Z",
+          "notify": "تم إضافة رصيد قدره 20$"
+        },
+        {
+          "id": 1757514994316,
+          "type": "إضافة رصيد",
+          "amount": 100,
+          "date": "2025-09-10T14:36:34.316Z",
+          "createdAt": "2025-09-10T14:36:34.316Z",
+          "notify": "تم إضافة رصيد قدره 100$"
+        },
+        {
+          "id": 1757517292962,
+          "type": "خصم",
+          "amount": 50,
+          "createdAt": "2025-09-10T15:14:52.920Z",
+          "notify": "تم خصم 50$"
+        },
+        {
+          "id": 1757518438085,
+          "type": "خصم",
+          "amount": 100,
+          "createdAt": "2025-09-10T15:33:58.061Z",
+          "notify": "تم خصم 100$"
+        }
+      ],
+      "id": "qdpek6F"
+    },
+    {
+      "email": "kokoko@gmail.com",
+      "password": "$2a$10$xVkakd3mOj2Z9ihHUQXLf.FtRzXUu9RoI6GgBhATIkzAO7RmCBmiy",
+      "balance": 80,
+      "transactions": [
+        {
+          "id": 1757518673995,
+          "type": "إضافة رصيد",
+          "amount": 200,
+          "date": "2025-09-10T15:37:53.995Z",
+          "createdAt": "2025-09-10T15:37:53.995Z",
+          "notify": "تم إضافة رصيد قدره 200$"
+        },
+        {
+          "id": 1757518684800,
+          "type": "خصم",
+          "amount": 100,
+          "createdAt": "2025-09-10T15:38:04.780Z",
+          "notify": "تم خصم 100$"
+        },
+        {
+          "id": 1757518702514,
+          "type": "إضافة رصيد",
+          "amount": 20,
+          "date": "2025-09-10T15:38:22.514Z",
+          "createdAt": "2025-09-10T15:38:22.514Z",
+          "notify": "تم إضافة رصيد قدره 20$"
+        },
+        {
+          "id": 1757518715079,
+          "type": "خصم",
+          "amount": 100,
+          "createdAt": "2025-09-10T15:38:35.053Z",
+          "notify": "تم خصم 100$"
+        },
+        {
+          "id": 1757518751710,
+          "type": "إضافة رصيد",
+          "amount": 50,
+          "date": "2025-09-10T15:39:11.710Z",
+          "createdAt": "2025-09-10T15:39:11.710Z",
+          "notify": "تم إضافة رصيد قدره 50$"
+        },
+        {
+          "id": 1757518760597,
+          "type": "إضافة رصيد",
+          "amount": 10,
+          "date": "2025-09-10T15:39:20.597Z",
+          "createdAt": "2025-09-10T15:39:20.597Z",
+          "notify": "تم إضافة رصيد قدره 10$"
+        },
+        {
+          "id": 1757518950597,
+          "type": "إضافة رصيد",
+          "amount": 100,
+          "date": "2025-09-10T15:42:30.596Z",
+          "createdAt": "2025-09-10T15:42:30.596Z",
+          "notify": "تم إضافة رصيد قدره 100$"
+        },
+        {
+          "id": 1757519231967,
+          "type": "خصم",
+          "amount": 100,
+          "createdAt": "2025-09-10T15:47:11.967Z",
+          "notify": "تم خصم 100$"
+        },
+        {
+          "id": 1757519244599,
+          "type": "خصم",
+          "amount": 50,
+          "createdAt": "2025-09-10T15:47:24.599Z",
+          "notify": "تم خصم 50$"
+        },
+        {
+          "id": 1757519669707,
+          "type": "إضافة رصيد",
+          "amount": 100,
+          "date": "2025-09-10T15:54:29.707Z",
+          "createdAt": "2025-09-10T15:54:29.707Z",
+          "notify": "تم إضافة رصيد قدره 100$"
+        },
+        {
+          "id": 1757520045001,
+          "type": "خصم",
+          "amount": 50,
+          "createdAt": "2025-09-10T16:00:45.001Z",
+          "notify": "تم خصم 50$"
+        }
+      ],
+      "id": "Lvh5QHU"
     }
   ],
   "notifications": [],
-  "bookings": []
+  "bookings": [
+    {
+      "userId": "qdpek6F",
+      "type": "غسل داخلي",
+      "location": [
+        24.7136,
+        46.6753
+      ],
+      "price": 50,
+      "datetime": 1759152600,
+      "createdAt": "2025-09-10T15:14:52.920Z",
+      "notify": "تم إنشاء حجز غسل داخلي بسعر 50$",
+      "id": 1
+    },
+    {
+      "userId": "qdpek6F",
+      "type": "غسل شامل",
+      "location": [
+        24.713325964099944,
+        46.675557196140296
+      ],
+      "price": 100,
+      "datetime": 1757496600,
+      "createdAt": "2025-09-10T15:33:58.061Z",
+      "notify": "تم إنشاء حجز غسل شامل بسعر 100$",
+      "id": 2
+    },
+    {
+      "userId": "Lvh5QHU",
+      "type": "غسل شامل",
+      "location": [
+        24.7136,
+        46.6753
+      ],
+      "price": 100,
+      "datetime": 1757514600,
+      "createdAt": "2025-09-10T15:38:04.780Z",
+      "notify": "تم إنشاء حجز غسل شامل بسعر 100$",
+      "id": 3
+    },
+    {
+      "userId": "Lvh5QHU",
+      "type": "غسل شامل",
+      "location": [
+        24.7136,
+        46.6753
+      ],
+      "price": 100,
+      "datetime": 1757496600,
+      "createdAt": "2025-09-10T15:38:35.053Z",
+      "notify": "تم إنشاء حجز غسل شامل بسعر 100$",
+      "id": 4
+    },
+    {
+      "userId": "Lvh5QHU",
+      "type": "غسل شامل",
+      "location": [
+        24.7136,
+        46.6753
+      ],
+      "price": 100,
+      "datetime": 1757500200,
+      "createdAt": "2025-09-10T15:42:35.607Z",
+      "notify": "تم إنشاء حجز غسل شامل بسعر 100$",
+      "id": 5
+    },
+    {
+      "userId": "Lvh5QHU",
+      "type": "غسل شامل",
+      "location": [
+        24.7136,
+        46.6753
+      ],
+      "price": 100,
+      "datetime": 1757496600,
+      "createdAt": "2025-09-10T15:43:54.799Z",
+      "notify": "تم إنشاء حجز غسل شامل بسعر 100$",
+      "id": 6
+    },
+    {
+      "userId": "Lvh5QHU",
+      "type": "غسل شامل",
+      "location": [
+        24.7136,
+        46.6753
+      ],
+      "price": 100,
+      "datetime": 1758619800,
+      "createdAt": "2025-09-10T15:47:11.994Z",
+      "notify": "تم إنشاء حجز غسل شامل بسعر 100$",
+      "id": 7
+    },
+    {
+      "userId": "Lvh5QHU",
+      "type": "غسل خارجي",
+      "location": [
+        24.7136,
+        46.6753
+      ],
+      "price": 50,
+      "datetime": 1757496600,
+      "createdAt": "2025-09-10T15:47:24.697Z",
+      "notify": "تم إنشاء حجز غسل خارجي بسعر 50$",
+      "id": 8
+    },
+    {
+      "userId": "Lvh5QHU",
+      "type": "غسل داخلي",
+      "location": [
+        24.7136,
+        46.6753
+      ],
+      "price": 50,
+      "datetime": 1757496600,
+      "createdAt": "2025-09-10T16:00:45.043Z",
+      "notify": "تم إنشاء حجز غسل داخلي بسعر 50$",
+      "id": 9
+    }
+  ]
 }

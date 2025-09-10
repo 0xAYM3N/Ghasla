@@ -40,11 +40,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
+  const token = userStore.token 
 
-  // هنا نشيك مباشرة على الـ token
-  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+  if (to.meta.requiresAuth && !token) {
     next('/login')
-  } else if ((to.path === '/login' || to.path === '/signup') && userStore.isLoggedIn) {
+  } else if ((to.path === '/login' || to.path === '/signup') && token) {
     next('/')
   } else {
     next()
@@ -52,4 +52,3 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
-

@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useUserStore } from '../../../stores/userStore'
 import axios from 'axios'
 import './Bookings.css'
@@ -8,6 +7,9 @@ import './Bookings.css'
 const showPopup = ref(false)
 const popupMessage = ref("")
 const bookingToDelete = ref(null)
+const bookings = ref([])
+
+const userStore = useUserStore()
 
 function openPopup(msg, id) {
   popupMessage.value = msg
@@ -20,21 +22,37 @@ function closePopup() {
   bookingToDelete.value = null
 }
 
-const router = useRouter()
-const userStore = useUserStore()
-const bookings = ref([])
+function getUserEmailFromToken(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.email
+  } catch {
+    return null
+  }
+}
 
-onMounted(async () => {
-  userStore.loadUserFromStorage()
-  if (!userStore.id) return
+async function loadBookings() {
+  if (!userStore.token) return
 
   try {
-    const response = await axios.get(`http://localhost:3000/bookings?userId=${userStore.id}`)
-    bookings.value = response.data.reverse()
+    const resUsers = await axios.get('http://localhost:3000/users', {
+      headers: { Authorization: `Bearer ${userStore.token}` }
+    })
+
+    const email = getUserEmailFromToken(userStore.token)
+    const user = resUsers.data.find(u => u.email === email)
+
+    if (!user) return
+
+    const resBookings = await axios.get(`http://localhost:3000/bookings?userId=${user.id}`, {
+      headers: { Authorization: `Bearer ${userStore.token}` }
+    })
+
+    bookings.value = resBookings.data.reverse()
   } catch (error) {
-    console.error("حدث خطأ أثناء جلب الحجوزات:", error)
+    console.error("❌ خطأ أثناء جلب الحجوزات:", error)
   }
-})
+}
 
 async function deleteBooking(id) {
   openPopup("هل أنت متأكد أنك تريد حذف هذا الحجز؟", id)
@@ -43,10 +61,12 @@ async function deleteBooking(id) {
 async function confirmDelete() {
   if (!bookingToDelete.value) return
   try {
-    await axios.delete(`http://localhost:3000/bookings/${bookingToDelete.value}`)
+    await axios.delete(`http://localhost:3000/bookings/${bookingToDelete.value}`, {
+      headers: { Authorization: `Bearer ${userStore.token}` }
+    })
     bookings.value = bookings.value.filter(b => b.id !== bookingToDelete.value)
   } catch (error) {
-    console.error("❌ حدث خطأ أثناء حذف الحجز", error)
+    console.error("❌ خطأ أثناء حذف الحجز", error)
   }
   bookingToDelete.value = null
   closePopup()
@@ -54,7 +74,7 @@ async function confirmDelete() {
 
 function formatDateTime(unix) {
   if (!unix) return { date: "-", time: "-" }
-  const d = new Date(unix * 1000) 
+  const d = new Date(unix * 1000)
   const date = d.toLocaleDateString("en", {
     year: "numeric",
     month: "2-digit",
@@ -67,6 +87,10 @@ function formatDateTime(unix) {
   })
   return { date, time }
 }
+
+onMounted(() => {
+  loadBookings()
+})
 </script>
 
 <template>
@@ -123,4 +147,3 @@ function formatDateTime(unix) {
     </div>
   </div>
 </template>
-

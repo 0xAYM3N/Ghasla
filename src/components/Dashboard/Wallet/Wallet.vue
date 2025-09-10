@@ -9,20 +9,44 @@ const showPopup = ref(false)
 const newAmount = ref(0)
 
 const wallet = ref({
+  id: null,
   balance: 0,
   transactions: []
 })
 
+function getUserEmailFromToken(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.email
+  } catch {
+    return null
+  }
+}
+
 async function loadWallet() {
-  if (!userStore.id) return
-  const response = await axios.get(`http://localhost:3000/users/${userStore.id}`)
-  const data = response.data
-  wallet.value.balance = parseFloat(data.balance) || 0
-  wallet.value.transactions = data.transactions || []
+  if (!userStore.token) return
+  try {
+    const res = await axios.get('http://localhost:3000/users', {
+      headers: {
+        Authorization: `Bearer ${userStore.token}`
+      }
+    })
+
+    const email = getUserEmailFromToken(userStore.token)
+    const user = res.data.find(u => u.email === email)
+    if (user) {
+      wallet.value = {
+        id: user.id,
+        balance: parseFloat(user.balance) || 0,
+        transactions: user.transactions || []
+      }
+    }
+  } catch (err) {
+    console.error('❌ خطأ في جلب بيانات المحفظة:', err)
+  }
 }
 
 onMounted(() => {
-  userStore.loadUserFromStorage()
   loadWallet()
 })
 
@@ -46,31 +70,32 @@ function closePopup() {
 async function addBalance() {
   if (newAmount.value <= 0) return
   const amount = parseFloat(newAmount.value.toFixed(2))
-  const now = new Date()
-  const isoDate = now.toISOString()
+  const now = new Date().toISOString()
 
   const newTransaction = {
     id: Date.now(),
     type: 'إضافة رصيد',
     amount,
-    date: isoDate,
-    createdAt: isoDate,
+    date: now,
+    createdAt: now,
     notify: `تم إضافة رصيد قدره ${amount}$`
   }
 
   wallet.value.transactions.push(newTransaction)
   wallet.value.balance += amount
 
-  await axios.patch(`http://localhost:3000/users/${userStore.id}`, {
-    balance: wallet.value.balance,
-    transactions: wallet.value.transactions
-  })
-
-  userStore.setUser({
-    ...userStore.$state,
-    balance: wallet.value.balance,
-    transactions: wallet.value.transactions
-  })
+  try {
+    await axios.patch(`http://localhost:3000/users/${wallet.value.id}`, {
+      balance: wallet.value.balance,
+      transactions: wallet.value.transactions
+    }, {
+      headers: {
+        Authorization: `Bearer ${userStore.token}`
+      }
+    })
+  } catch (err) {
+    console.error('❌ خطأ في تحديث الرصيد:', err)
+  }
 
   closePopup()
 }
@@ -81,13 +106,7 @@ function formatAmount(value) {
 
 function formatDateTime(date) {
   const d = new Date(date)
-  const yyyy = d.getFullYear()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  const hh = String(d.getHours()).padStart(2, '0')
-  const min = String(d.getMinutes()).padStart(2, '0')
-  const ss = String(d.getSeconds()).padStart(2, '0')
-  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
 }
 </script>
 
