@@ -5,13 +5,9 @@ import { useUserStore } from '../../stores/userStore'
 
 const userStore = useUserStore()
 
-onMounted(async () => {
+onMounted(() => {
   if (!userStore.token) {
     userStore.loadToken()
-  }
-
-  if (userStore.token && !userStore.username) {
-    await userStore.fetchProfile()
   }
 })
 </script>
