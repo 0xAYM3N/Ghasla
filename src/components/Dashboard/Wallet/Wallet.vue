@@ -52,8 +52,8 @@ onMounted(() => {
 
 const sortedTransactions = computed(() => {
   return [...wallet.value.transactions].sort((a, b) => {
-    const dateA = new Date(a.createdAt || a.date).getTime() || 0
-    const dateB = new Date(b.createdAt || b.date).getTime() || 0
+    const dateA = new Date(a.createdAt).getTime() || 0
+    const dateB = new Date(b.createdAt).getTime() || 0
     return dateB - dateA
   })
 })
@@ -76,7 +76,6 @@ async function addBalance() {
     id: Date.now(),
     type: 'إضافة رصيد',
     amount,
-    date: now,
     createdAt: now,
     notify: `تم إضافة رصيد قدره ${amount}$`
   }
@@ -138,7 +137,7 @@ function formatDateTime(date) {
         >
           <td>{{ t.type }}</td>
           <td>{{ formatAmount(t.amount) }}$</td>
-          <td>{{ formatDateTime(t.createdAt || t.date) }}</td>
+          <td>{{ formatDateTime(t.createdAt) }}</td>
         </tr>
       </tbody>
     </table>
