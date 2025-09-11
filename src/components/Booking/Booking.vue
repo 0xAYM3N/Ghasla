@@ -129,6 +129,7 @@ async function submitBookingForm() {
       location: markerPosition.value,
       price: selectedPrice.value,
       datetime: datetime.value,
+      status: "قيد الانتظار",
       createdAt: now,
       notify: `تم إنشاء حجز ${selectedType.value} بسعر ${selectedPrice.value}$`
     }

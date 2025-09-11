@@ -123,10 +123,11 @@ onMounted(() => {
           <span 
             :class="{
               'status-confirmed': booking.status === 'مؤكد',
-              'status-pending': booking.status === 'قيد الانتظار'
+              'status-pending': booking.status === 'قيد الانتظار',
+              'status-cancelled': booking.status === 'ملغى'
             }"
           >
-            {{ booking.status || 'قيد الانتظار' }}
+            {{ booking.status }}
           </span>
         </div>
         <div class="card-actions">
