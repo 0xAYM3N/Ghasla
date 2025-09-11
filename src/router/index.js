@@ -9,7 +9,7 @@ import Booking from '../Pages/Booking.vue'
 import PageNotFound from '../components/PageNotFound/PageNotFound.vue'
 
 // User Dashboard
-import Dashboard from '../Pages/Dashboard.vue'
+import Dashboard from '../components/Dashboard/Dashboard.vue'
 import Account from '../components/Dashboard/Account/Account.vue'
 import Bookings from '../components/Dashboard/Bookings/Bookings.vue'
 import Notifications from '../components/Dashboard/Notifications/Notifications.vue'
