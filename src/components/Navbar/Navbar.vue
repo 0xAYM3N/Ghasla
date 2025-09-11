@@ -1,15 +1,10 @@
 <script setup>
 import './Navbar.css'
-import { onMounted } from 'vue'
 import { useUserStore } from '../../stores/userStore'
 
 const userStore = useUserStore()
 
-onMounted(() => {
-  if (!userStore.token) {
-    userStore.loadToken()
-  }
-})
+userStore.loadToken()
 </script>
 
 <template>
@@ -33,10 +28,15 @@ onMounted(() => {
           تسجيل الدخول
         </router-link>
 
-        <router-link v-else to="/dashboard" class="dashboard-btn">
+        <router-link
+          v-else
+          to="/dashboard"
+          class="dashboard-btn"
+        >
           لوحة التحكم
         </router-link>
       </div>
     </div>
   </div>
 </template>
+

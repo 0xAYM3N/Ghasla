@@ -1,0 +1,169 @@
+<script setup>
+import { ref, computed, onMounted } from "vue"
+import axios from "axios"
+import "./ClientsBookings.css"
+import ClientMap from "../ClientMap/ClientMap.vue"
+
+const bookings = ref([])
+const users = ref([])
+const loading = ref(true)
+const error = ref(null)
+const filterStatus = ref("all")
+const showMapModal = ref(false)
+const selectedUserCoords = ref([24.7136, 46.6753])
+
+const searchQuery = ref("")
+const searchField = ref("id") 
+
+async function loadData() {
+  try {
+    const [resBookings, resUsers] = await Promise.all([
+      axios.get("http://localhost:3000/bookings"),
+      axios.get("http://localhost:3000/users")
+    ])
+    bookings.value = resBookings.data
+    users.value = resUsers.data
+  } catch (err) {
+    error.value = "خطأ أثناء جلب البيانات"
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+function getUserById(id) {
+  return users.value.find(u => u.id === id)
+}
+
+async function updateBookingStatus(booking, newStatus) {
+  try {
+    await axios.patch(`http://localhost:3000/bookings/${booking.id}`, {
+      status: newStatus
+    })
+  } catch (err) {
+    console.error("❌ خطأ أثناء تحديث الحالة", err)
+  }
+}
+
+function openMapModal(booking) {
+  if (!booking?.location) {
+    selectedUserCoords.value = [24.7136, 46.6753]
+  } else {
+    selectedUserCoords.value = Array.isArray(booking.location)
+      ? [...booking.location]
+      : [booking.location.lat, booking.location.lng]
+  }
+  showMapModal.value = true
+}
+
+function closeMapModal() {
+  showMapModal.value = false
+}
+
+const filteredBookings = computed(() => {
+  let result = bookings.value
+
+  if (filterStatus.value !== "all") {
+    result = result.filter(b => b.status === filterStatus.value)
+  }
+
+  if (searchQuery.value.trim() !== "") {
+    const query = searchQuery.value.toLowerCase()
+    result = result.filter(b => {
+      if (searchField.value === "id") return b.id.toString().includes(query)
+      if (searchField.value === "type") return b.type.toLowerCase().includes(query)
+      if (searchField.value === "email") {
+        const user = getUserById(b.userId)
+        return user?.email.toLowerCase().includes(query)
+      }
+      return false
+    })
+  }
+
+  return result
+})
+
+onMounted(() => loadData())
+</script>
+
+<template>
+  <div class="clients-bookings">
+    <div class="header">
+      <h2>جميع الحجوزات</h2>
+      <div class="controls">
+        <div class="filter">
+          <label>تصفية:</label>
+          <select v-model="filterStatus">
+            <option value="all">الكل</option>
+            <option value="قيد الانتظار">قيد الانتظار</option>
+            <option value="مؤكد">مؤكد</option>
+            <option value="ملغى">ملغى</option>
+          </select>
+        </div>
+        <div class="search">
+          <select v-model="searchField">
+            <option value="id">رقم الحجز</option>
+            <option value="email">إيميل العميل</option>
+            <option value="type">نوع الخدمة</option>
+          </select>
+          <input type="text" v-model="searchQuery" placeholder="ابحث هنا..." />
+        </div>
+      </div>
+    </div>
+
+    <div v-if="loading" class="loading">جارٍ التحميل...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else>
+      <div class="bookings-table-container">
+        <table class="bookings-table">
+          <thead>
+            <tr>
+              <th>رقم الحجز</th>
+              <th>الخدمة</th>
+              <th>السعر</th>
+              <th>الحالة</th>
+              <th>إيميل العميل</th>
+              <th>إظهار الموقع</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="b in filteredBookings" :key="b.id">
+              <td>{{ b.id }}</td>
+              <td>{{ b.type }}</td>
+              <td>{{ b.price }}$</td>
+              <td>
+                <select
+                  class="status-select"
+                  :class="{
+                    'status-pending': b.status === 'قيد الانتظار',
+                    'status-confirmed': b.status === 'مؤكد',
+                    'status-cancelled': b.status === 'ملغى'
+                  }"
+                  v-model="b.status"
+                  @change="updateBookingStatus(b, b.status)"
+                >
+                  <option value="قيد الانتظار">قيد الانتظار</option>
+                  <option value="مؤكد">مؤكد</option>
+                  <option value="ملغى">ملغى</option>
+                </select>
+              </td>
+              <td>{{ getUserById(b.userId)?.email || "-" }}</td>
+              <td>
+                <button class="show-map-btn" @click="openMapModal(b)">عرض موقع العميل</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div v-if="showMapModal" class="modal">
+      <div class="modal-content">
+        <h3>موقع العميل</h3>
+        <ClientMap :coords="selectedUserCoords" />
+        <button class="close-modal" @click="closeMapModal">إغلاق</button>
+      </div>
+    </div>
+  </div>
+</template>
+

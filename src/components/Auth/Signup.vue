@@ -47,12 +47,17 @@ async function submitSignupForm() {
       email: form.value.email,
       password: form.value.password,
       balance: 0,
-      transactions: []
+      transactions: [],
+      role: 'user'
     })
 
     userStore.setToken(res.data.accessToken)
+    if (res.data.user) {
+      userStore.user = res.data.user
+      userStore.role = res.data.user.role || 'user'
+    }
 
-    router.push('/')
+    router.push('/dashboard')
   } catch (error) {
     console.error(error)
 
@@ -78,17 +83,35 @@ async function submitSignupForm() {
         <form @submit.prevent="submitSignupForm">
           <div class="auth-row">
             <i class="fa-solid fa-envelope"></i>
-            <input v-model="form.email" type="email" placeholder="Email" required />
+            <input 
+              v-model="form.email" 
+              type="email" 
+              placeholder="Email" 
+              autocomplete="username"
+              required
+            />
           </div>
 
           <div class="auth-row">
             <i class="fas fa-lock"></i>
-            <input v-model="form.password" type="password" placeholder="Password" required />
+            <input 
+              v-model="form.password" 
+              type="password" 
+              placeholder="Password"
+              autocomplete="new-password"
+              required 
+            />
           </div>
 
           <div class="auth-row">
             <i class="fas fa-lock"></i>
-            <input v-model="form.confirmPassword" type="password" placeholder="Confirm Password" required />
+            <input 
+              v-model="form.confirmPassword"
+              type="password"
+              placeholder="Confirm Password"
+              autocomplete="new-password"
+              required 
+            />
           </div>
 
           <div class="error-msg">
@@ -105,7 +128,7 @@ async function submitSignupForm() {
 
           <div class="auth-link">
             لديك حساب؟
-            <router-link to="/login">تسجيل دخول</router-link>
+            <router-link to="/login">تسجيل الدخول</router-link>
           </div>
         </form>
       </div>

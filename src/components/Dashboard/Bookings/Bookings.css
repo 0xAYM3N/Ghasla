@@ -58,16 +58,6 @@
   font-weight: bold;
 }
 
-.bookings-page .bookings-cards .card-row .status-confirmed {
-  color: var(--green); 
-  font-weight: bold;
-}
-
-.bookings-page .bookings-cards .card-row .status-confirmed .status-pending {
-  color: #facc15; 
-  font-weight: bold;
-}
-
 .bookings-page .bookings-cards .card-actions {
   margin-top: 10px;
   display: flex;
@@ -169,3 +159,22 @@
 .bookings-page .popup-content .buttons .confirm-delete:hover { 
   opacity: .7; 
 }
+
+
+/* Status */
+.bookings-page .status-confirmed {
+  color: var(--green);
+  font-weight: bold;
+}
+
+.bookings-page .status-pending {
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.bookings-page .status-cancelled {
+  color: var(--white);
+  color: #f44336;
+  font-weight: bold;
+}
+
