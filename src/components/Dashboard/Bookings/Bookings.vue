@@ -8,6 +8,7 @@ const showPopup = ref(false)
 const popupMessage = ref("")
 const bookingToCancel = ref(null)
 const bookings = ref([])
+const loadingCancel = ref(false)
 
 const userStore = useUserStore()
 
@@ -20,6 +21,7 @@ function openPopup(msg, id) {
 function closePopup() {
   showPopup.value = false
   bookingToCancel.value = null
+  loadingCancel.value = false
 }
 
 async function loadBookings() {
@@ -43,7 +45,9 @@ async function cancelBooking(id) {
 }
 
 async function confirmCancel() {
-  if (!bookingToCancel.value) return
+  if (!bookingToCancel.value || loadingCancel.value) return
+  loadingCancel.value = true
+
   try {
     const booking = bookings.value.find(b => b.id === bookingToCancel.value)
     if (!booking) return
@@ -90,9 +94,10 @@ async function confirmCancel() {
 
   } catch (error) {
     console.error("❌ خطأ أثناء إلغاء الحجز واسترداد الرصيد:", error.message)
+  } finally {
+    bookingToCancel.value = null
+    closePopup()
   }
-  bookingToCancel.value = null
-  closePopup()
 }
 
 function formatDateTime(unix) {
@@ -170,7 +175,13 @@ onMounted(() => {
       <div class="popup-content">
         <h3>{{ popupMessage }}</h3>
         <div class="buttons">
-          <button class="confirm-cancel" @click="confirmCancel">تأكيد الإلغاء</button>
+          <button 
+            class="confirm-cancel" 
+            :disabled="loadingCancel" 
+            @click="confirmCancel"
+          >
+            {{ loadingCancel ? "جاري الإلغاء..." : "تأكيد الإلغاء" }}
+          </button>
           <button class="close-popup" @click="closePopup">إغلاق</button>
         </div>
       </div>
