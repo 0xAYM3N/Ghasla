@@ -35,12 +35,23 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: error.message })
   }
 
+  const user = data.user
+
+  const { error: insertError } = await supabase
+    .from('users')
+    .insert([{ id: user.id }])
+
+  if (insertError) {
+    console.error(insertError)
+    return res.status(500).json({ error: 'Failed to insert user profile' })
+  }
+
   if (!process.env.JWT_SECRET) {
     return res.status(500).json({ error: 'Server misconfigured: JWT_SECRET missing' })
   }
 
   const token = jwt.sign(
-    { id: data.user.id, email: data.user.email, role: 'user' },
+    { id: user.id },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   )
@@ -55,5 +66,5 @@ export default async function handler(req, res) {
     })
   )
 
-  return res.status(200).json({ message: 'Account created' })
+  return res.status(200).json({ message: 'Account created', id: user.id })
 }

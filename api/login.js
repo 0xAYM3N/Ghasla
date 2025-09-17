@@ -36,7 +36,7 @@ export default async function handler(req, res) {
   }
 
   const token = jwt.sign(
-    { id: data.user.id, email: data.user.email, role: 'user' },
+    { id: data.user.id },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   )
@@ -51,5 +51,5 @@ export default async function handler(req, res) {
     })
   )
 
-  return res.status(200).json({ message: 'Logged in' })
+  return res.status(200).json({ message: 'Logged in', id: data.user.id })
 }
