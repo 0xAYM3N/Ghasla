@@ -28,7 +28,7 @@ const fetchUserData = async () => {
       userStore.user = user
     }
   } catch (err) {
-    console.error('❌ Error fetching user:', err.message)
+    console.error('خطأ عند جلب بيانات المستخدم:', err.message)
   }
 }
 
@@ -49,13 +49,13 @@ const handleSave = async (field) => {
   const value = form[field]
 
   if (field !== 'password' && value === originalValues[field]) {
-    fieldMessages[field] = 'No changes detected'
+    fieldMessages[field] = 'لم يتم إجراء أي تعديل'
     editMode[field] = false
     return
   }
 
   if (!value) {
-    fieldMessages[field] = `${field} cannot be empty`
+    fieldMessages[field] = `${field === 'email' ? 'البريد الإلكتروني' : 'كلمة المرور'} لا يمكن أن يكون فارغ`
     return
   }
 
@@ -64,78 +64,77 @@ const handleSave = async (field) => {
       const { error } = await supabase.auth.updateUser({ email: value })
       if (error) {
         if (error.message.includes("already registered")) {
-          fieldMessages.email = "This email is already in use"
+          fieldMessages.email = "البريد الإلكتروني مسجّل مسبقًا"
         } else {
-          fieldMessages.email = "Error while updating email"
+          fieldMessages.email = "حدث خطأ أثناء تحديث البريد الإلكتروني"
         }
         return
       }
 
       originalValues.email = value
       userStore.user = { ...userStore.user, email: value }
-      globalMessage.value = 'Email updated. Please confirm your new email.'
+      globalMessage.value = 'تم تحديث البريد الإلكتروني، الرجاء تأكيد البريد الجديد من خلال الرسالة المرسلة'
     }
 
     if (field === 'password') {
       if (value.length < 6) {
-        fieldMessages.password = 'Password must be at least 6 characters'
+        fieldMessages.password = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
         return
       }
 
       const { error } = await supabase.auth.updateUser({ password: value })
       if (error) {
-        fieldMessages.password = "Error while updating password"
+        fieldMessages.password = "حدث خطأ أثناء تحديث كلمة المرور"
         return
       }
 
       form.password = ''
-      globalMessage.value = 'Password updated successfully'
+      globalMessage.value = 'تم تحديث كلمة المرور بنجاح'
     }
 
     editMode[field] = false
     fieldMessages[field] = ''
     setTimeout(() => (globalMessage.value = ''), 4000)
   } catch (err) {
-    console.error('❌ Error updating:', err.message)
-    fieldMessages[field] = 'Error while updating'
+    console.error('خطأ عند التحديث:', err.message)
+    fieldMessages[field] = 'حدث خطأ أثناء التحديث'
   }
 }
 </script>
 
 <template>
   <div class="account">
-    <h2>Account Management</h2>
+    <h2>إدارة الحساب</h2>
 
     <div v-if="globalMessage" class="toast">{{ globalMessage }}</div>
 
     <!-- Email -->
     <div class="form-row">
-      <label>Email</label>
+      <label>البريد الإلكتروني</label>
       <div class="input-group">
         <input v-model="form.email" :disabled="!editMode.email" />
-        <button v-if="!editMode.email" class="edit-btn" @click="enableEdit('email')">Edit</button>
-        <button v-else class="save-btn" @click="handleSave('email')">Save</button>
-        <button v-if="editMode.email" class="cancel-btn" @click="cancelEdit('email')">Cancel</button>
+        <button v-if="!editMode.email" class="edit-btn" @click="enableEdit('email')">تعديل</button>
+        <button v-else class="save-btn" @click="handleSave('email')">حفظ</button>
+        <button v-if="editMode.email" class="cancel-btn" @click="cancelEdit('email')">إلغاء</button>
       </div>
       <p class="error" v-if="fieldMessages.email">{{ fieldMessages.email }}</p>
     </div>
 
     <!-- Password -->
     <div class="form-row">
-      <label>Change Password</label>
+      <label>تغيير كلمة المرور</label>
       <div class="input-group">
         <input
           type="password"
           v-model="form.password"
           :disabled="!editMode.password"
-          placeholder="New password"
+          placeholder="كلمة المرور الجديدة"
         />
-        <button v-if="!editMode.password" class="edit-btn" @click="enableEdit('password')">Edit</button>
-        <button v-else class="save-btn" @click="handleSave('password')">Save</button>
-        <button v-if="editMode.password" class="cancel-btn" @click="cancelEdit('password')">Cancel</button>
+        <button v-if="!editMode.password" class="edit-btn" @click="enableEdit('password')">تعديل</button>
+        <button v-else class="save-btn" @click="handleSave('password')">حفظ</button>
+        <button v-if="editMode.password" class="cancel-btn" @click="cancelEdit('password')">إلغاء</button>
       </div>
       <p class="error" v-if="fieldMessages.password">{{ fieldMessages.password }}</p>
     </div>
   </div>
 </template>
-
