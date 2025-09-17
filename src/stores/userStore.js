@@ -5,7 +5,8 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
     profile: null,
-    role: null
+    role: null,
+    isAuthReady: false
   }),
 
   getters: {
@@ -45,10 +46,24 @@ export const useUserStore = defineStore('user', {
       return data
     },
 
-    async loadUserSession() {
-      const user = await this.fetchUser()
-      if (user) {
-        await this.fetchProfile()
+    async initAuth() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          this.user = session.user
+          await this.fetchProfile()
+        } else {
+          this.user = null
+          this.profile = null
+          this.role = null
+        }
+      } catch (err) {
+        console.error('initAuth error:', err.message)
+        this.user = null
+        this.profile = null
+        this.role = null
+      } finally {
+        this.isAuthReady = true
       }
     },
 

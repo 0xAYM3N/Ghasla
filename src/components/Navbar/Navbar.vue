@@ -6,9 +6,8 @@ import { useUserStore } from '../../stores/userStore'
 const userStore = useUserStore()
 
 onMounted(async () => {
-  if (!userStore.user) {
-    await userStore.fetchUser()
-    await userStore.fetchProfile()
+  if (!userStore.isAuthReady) {
+    await userStore.initAuth()
   }
 })
 </script>
@@ -30,19 +29,20 @@ onMounted(async () => {
       </div>
 
       <div class="btn">
-        <router-link v-if="!userStore.isLoggedIn" to="/login">
-          تسجيل الدخول
-        </router-link>
+        <template v-if="userStore.isAuthReady">
+          <router-link v-if="!userStore.isLoggedIn" to="/login">
+            تسجيل الدخول
+          </router-link>
 
-        <router-link
-          v-else
-          to="/dashboard"
-          class="dashboard-btn"
-        >
-          لوحة التحكم
-        </router-link>
+          <router-link
+            v-else
+            to="/dashboard"
+            class="dashboard-btn"
+          >
+            لوحة التحكم
+          </router-link>
+        </template>
       </div>
     </div>
   </div>
 </template>
-

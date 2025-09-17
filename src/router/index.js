@@ -63,23 +63,23 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
 
-  if (!userStore.isLoggedIn && to.meta.requiresAuth) {
+  if (!userStore.isAuthReady) {
+    await userStore.initAuth()
+  }
+
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     return next('/login')
   }
 
-  if (userStore.isLoggedIn && !userStore.role) {
-    await userStore.fetchProfile()
+  if (userStore.isLoggedIn && (to.path === '/login' || to.path === '/signup')) {
+    return next('/')
   }
 
   if (to.meta.requiresAdmin && userStore.role !== 'admin') {
     return next('/')
   }
 
-  if ((to.path === '/login' || to.path === '/signup') && userStore.isLoggedIn) {
-    return next('/')
-  }
-
   next()
 })
-export default router
 
+export default router
