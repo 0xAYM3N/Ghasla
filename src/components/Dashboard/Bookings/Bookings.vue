@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
-import axios from 'axios'
+import { supabase } from '../../../lib/supabaseClient'
 import './Bookings.css'
 
 const showPopup = ref(false)
@@ -22,35 +22,19 @@ function closePopup() {
   bookingToDelete.value = null
 }
 
-function getUserEmailFromToken(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload.email
-  } catch {
-    return null
-  }
-}
-
 async function loadBookings() {
-  if (!userStore.token) return
-
+  if (!userStore.user) return
   try {
-    const resUsers = await axios.get('http://localhost:3000/users', {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('user_id', userStore.user.id)
+      .order('datetime', { ascending: false })
 
-    const email = getUserEmailFromToken(userStore.token)
-    const user = resUsers.data.find(u => u.email === email)
-
-    if (!user) return
-
-    const resBookings = await axios.get(`http://localhost:3000/bookings?userId=${user.id}`, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-
-    bookings.value = resBookings.data.reverse()
-  } catch (error) {
-    console.error("❌ خطأ أثناء جلب الحجوزات:", error)
+    if (error) throw error
+    bookings.value = data || []
+  } catch (err) {
+    console.error("❌ خطأ أثناء جلب الحجوزات:", err.message)
   }
 }
 
@@ -61,12 +45,16 @@ async function deleteBooking(id) {
 async function confirmDelete() {
   if (!bookingToDelete.value) return
   try {
-    await axios.delete(`http://localhost:3000/bookings/${bookingToDelete.value}`, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
+    const { error } = await supabase
+      .from('bookings')
+      .delete()
+      .eq('id', bookingToDelete.value)
+
+    if (error) throw error
+
     bookings.value = bookings.value.filter(b => b.id !== bookingToDelete.value)
-  } catch (error) {
-    console.error("❌ خطأ أثناء حذف الحجز", error)
+  } catch (err) {
+    console.error("❌ خطأ أثناء حذف الحجز", err.message)
   }
   bookingToDelete.value = null
   closePopup()
