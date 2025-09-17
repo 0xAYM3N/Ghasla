@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import { supabase } from '../../../lib/supabaseClient'
 import { useUserStore } from '../../../stores/userStore'
 import './Wallet.css'
 
@@ -14,46 +14,42 @@ const wallet = ref({
   transactions: []
 })
 
-function getUserEmailFromToken(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload.email
-  } catch {
-    return null
-  }
-}
-
 async function loadWallet() {
-  if (!userStore.token) return
-  try {
-    const res = await axios.get('http://localhost:3000/users', {
-      headers: {
-        Authorization: `Bearer ${userStore.token}`
-      }
-    })
+  if (!userStore.user) return
 
-    const email = getUserEmailFromToken(userStore.token)
-    const user = res.data.find(u => u.email === email)
-    if (user) {
-      wallet.value = {
-        id: user.id,
-        balance: parseFloat(user.balance) || 0,
-        transactions: user.transactions || []
-      }
+  try {
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, balance')
+      .eq('id', userStore.user.id)
+      .single()
+
+    if (profileError) throw profileError
+
+    const { data: txs, error: txError } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userStore.user.id)
+      .order('created_at', { ascending: false })
+
+    if (txError) throw txError
+
+    wallet.value = {
+      id: profile.id,
+      balance: parseFloat(profile.balance) || 0,
+      transactions: txs || []
     }
   } catch (err) {
-    console.error('❌ خطأ في جلب بيانات المحفظة:', err)
+    console.error('خطأ في جلب بيانات المحفظة:', err.message)
   }
 }
 
-onMounted(() => {
-  loadWallet()
-})
+onMounted(loadWallet)
 
 const sortedTransactions = computed(() => {
   return [...wallet.value.transactions].sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime() || 0
-    const dateB = new Date(b.createdAt).getTime() || 0
+    const dateA = new Date(a.created_at).getTime() || 0
+    const dateB = new Date(b.created_at).getTime() || 0
     return dateB - dateA
   })
 })
@@ -70,30 +66,38 @@ function closePopup() {
 async function addBalance() {
   if (newAmount.value <= 0) return
   const amount = parseFloat(newAmount.value.toFixed(2))
-  const now = new Date().toISOString()
-
-  const newTransaction = {
-    id: Date.now(),
-    type: 'إضافة رصيد',
-    amount,
-    createdAt: now,
-    notify: `تم إضافة رصيد قدره ${amount}$`
-  }
-
-  wallet.value.transactions.push(newTransaction)
-  wallet.value.balance += amount
 
   try {
-    await axios.patch(`http://localhost:3000/users/${wallet.value.id}`, {
-      balance: wallet.value.balance,
-      transactions: wallet.value.transactions
-    }, {
-      headers: {
-        Authorization: `Bearer ${userStore.token}`
-      }
+    const newBalance = parseFloat((wallet.value.balance + amount).toFixed(2))
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ balance: newBalance })
+      .eq('id', wallet.value.id)
+
+    if (updateError) throw updateError
+
+    const { error: insertError } = await supabase
+      .from('transactions')
+      .insert({
+        user_id: wallet.value.id,
+        type: 'إضافة رصيد',
+        amount,
+        notify: `تم إضافة رصيد قدره ${amount}$`
+      })
+
+    if (insertError) throw insertError
+
+    wallet.value.balance = newBalance
+    wallet.value.transactions.unshift({
+      user_id: wallet.value.id,
+      type: 'إضافة رصيد',
+      amount,
+      notify: `تم إضافة رصيد قدره ${amount}$`,
+      created_at: new Date().toISOString()
     })
+
   } catch (err) {
-    console.error('❌ خطأ في تحديث الرصيد:', err)
+    console.error('خطأ في تحديث الرصيد:', err.message)
   }
 
   closePopup()
@@ -132,12 +136,12 @@ function formatDateTime(date) {
       <tbody>
         <tr 
           v-for="(t, index) in sortedTransactions" 
-          :key="t.id || index" 
+          :key="index"
           :class="{'deposit': t.type === 'إضافة رصيد', 'withdraw': t.type === 'خصم'}"
         >
           <td>{{ t.type }}</td>
           <td>{{ formatAmount(t.amount) }}$</td>
-          <td>{{ formatDateTime(t.createdAt) }}</td>
+          <td>{{ formatDateTime(t.created_at) }}</td>
         </tr>
       </tbody>
     </table>
@@ -154,4 +158,3 @@ function formatDateTime(date) {
     </div>
   </div>
 </template>
-
