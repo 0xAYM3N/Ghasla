@@ -38,7 +38,7 @@ async function submitLoginForm() {
       return
     }
 
-    await userStore.loadUserSession()
+    await userStore.initAuth()
 
     const role = userStore.role || userStore.profile?.role || null
 

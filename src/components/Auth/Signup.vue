@@ -69,7 +69,7 @@ async function submitSignupForm() {
 
     if (profileError) throw profileError
 
-    await userStore.loadUserSession()
+    await userStore.initAuth()
 
     router.push('/dashboard')
   } catch (error) {
