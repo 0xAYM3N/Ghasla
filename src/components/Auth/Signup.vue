@@ -1,5 +1,4 @@
 <script setup>
-import './style.css'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/userStore'
@@ -17,25 +16,23 @@ const form = ref({
 const message = ref('')
 const isSubmitting = ref(false)
 
-async function submitSignupForm() {
+function validateForm() {
   if (!form.value.email || !form.value.password || !form.value.confirmPassword) {
-    message.value = 'الرجاء إدخال جميع الحقول'
-    return
+    return 'الرجاء إدخال جميع الحقول'
   }
-
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailPattern.test(form.value.email)) {
-    message.value = 'الرجاء إدخال بريد إلكتروني صالح'
-    return
-  }
-
   if (form.value.password.length < 6) {
-    message.value = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
-    return
+    return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
   }
-
   if (form.value.password !== form.value.confirmPassword) {
-    message.value = 'كلمتا المرور غير متطابقتين'
+    return 'كلمتا المرور غير متطابقتين'
+  }
+  return null
+}
+
+async function submitSignupForm() {
+  const validationError = validateForm()
+  if (validationError) {
+    message.value = validationError
     return
   }
 
@@ -43,31 +40,21 @@ async function submitSignupForm() {
   message.value = ''
 
   try {
-    const res = await axios.post('http://localhost:3000/register', {
+    await axios.post('/api/signup', {
       email: form.value.email,
-      password: form.value.password,
-      balance: 0,
-      transactions: [],
-      role: 'user'
-    })
+      password: form.value.password
+    }, { withCredentials: true })
 
-    userStore.setToken(res.data.accessToken)
-    if (res.data.user) {
-      userStore.user = res.data.user
-      userStore.role = res.data.user.role || 'user'
+    const profile = await axios.get('/api/profile', { withCredentials: true })
+
+    if (profile.data) {
+      userStore.user = profile.data.user
+      userStore.role = profile.data.role
+      router.push('/')
     }
-
-    router.push('/dashboard')
-  } catch (error) {
-    console.error(error)
-
-    if (error.response?.data === 'Email already exists') {
-      message.value = 'البريد الإلكتروني مستخدم بالفعل'
-    } else if (error.response?.status === 500) {
-      message.value = 'خطأ في الخادم، حاول لاحقاً'
-    } else {
-      message.value = 'فشل إنشاء الحساب، تحقق من اتصالك'
-    }
+  } catch (err) {
+    console.error(err)
+    message.value = 'تعذر إنشاء الحساب'
   } finally {
     isSubmitting.value = false
   }
@@ -83,35 +70,15 @@ async function submitSignupForm() {
         <form @submit.prevent="submitSignupForm">
           <div class="auth-row">
             <i class="fa-solid fa-envelope"></i>
-            <input 
-              v-model="form.email" 
-              type="email" 
-              placeholder="Email" 
-              autocomplete="username"
-              required
-            />
+            <input v-model="form.email" type="email" placeholder="Email" required />
           </div>
-
           <div class="auth-row">
             <i class="fas fa-lock"></i>
-            <input 
-              v-model="form.password" 
-              type="password" 
-              placeholder="Password"
-              autocomplete="new-password"
-              required 
-            />
+            <input v-model="form.password" type="password" placeholder="Password" required />
           </div>
-
           <div class="auth-row">
             <i class="fas fa-lock"></i>
-            <input 
-              v-model="form.confirmPassword"
-              type="password"
-              placeholder="Confirm Password"
-              autocomplete="new-password"
-              required 
-            />
+            <input v-model="form.confirmPassword" type="password" placeholder="Confirm Password" required />
           </div>
 
           <div class="error-msg">
@@ -119,11 +86,7 @@ async function submitSignupForm() {
           </div>
 
           <div class="auth-row auth-button">
-            <input
-              type="submit"
-              :disabled="isSubmitting"
-              :value="isSubmitting ? 'جارٍ الإرسال...' : 'إنشاء حساب'"
-            />
+            <input type="submit" :disabled="isSubmitting" :value="isSubmitting ? 'جارٍ الإرسال...' : 'إنشاء حساب'" />
           </div>
 
           <div class="auth-link">

@@ -6,7 +6,7 @@ const checkIconClass = 'fa-solid fa-check'
 const services = [
   {
     title: 'غسل خارجي',
-    price: 100,
+    price: 50,
     items: [
       'غسل الهيكل الخارجي للسيارة',
       'تنظيف العجلات والإطارات',
@@ -17,7 +17,7 @@ const services = [
   },
   {
     title: 'غسل شامل',
-    price: 200,
+    price: 100,
     items: [
       'غسل داخلي وخارجي',
       'تنظيف كامل للمقاعد والسجاد والأرضيات',
@@ -29,7 +29,7 @@ const services = [
   },
   {
     title: 'غسل داخلي',
-    price: 100,
+    price: 50,
     items: [
       'تنظيف مقاعد السيارة',
       'تنظيف السجاد والأرضيات',

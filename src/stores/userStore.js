@@ -1,32 +1,22 @@
 import { defineStore } from 'pinia'
+import axios from 'axios'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    token: localStorage.getItem('token') || null,
-    role: null,
-    user: null
+    user: null,
+    role: null
   }),
 
   getters: {
-    isLoggedIn: (state) => !!state.token
+    isLoggedIn: (state) => !!state.user
   },
 
   actions: {
     async fetchUser() {
-      if (!this.token) return
-
       try {
-        const res = await fetch('/api/me', {
-          headers: {
-            Authorization: `Bearer ${this.token}`
-          }
-        })
-
-        if (!res.ok) throw new Error('فشل جلب بيانات المستخدم')
-
-        const data = await res.json()
-        this.user = data
-        this.role = data.role || null 
+        const res = await axios.get('/api/profile', { withCredentials: true })
+        this.user = res.data.user
+        this.role = res.data.role
       } catch (err) {
         console.error('fetchUser error:', err)
         this.user = null
@@ -34,24 +24,15 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async setToken(token) {
-      this.token = token
-      localStorage.setItem('token', token)
-      await this.fetchUser() 
-    },
-
-    async loadToken() {
-      this.token = localStorage.getItem('token')
-      if (this.token) {
-        await this.fetchUser()
+    async logout() {
+      try {
+        await axios.post('/api/logout', {}, { withCredentials: true })
+      } catch (err) {
+        console.error('logout error:', err)
+      } finally {
+        this.user = null
+        this.role = null
       }
-    },
-
-    logout() {
-      this.token = null
-      this.role = null
-      this.user = null
-      localStorage.removeItem('token')
     }
   }
 })

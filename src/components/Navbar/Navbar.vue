@@ -1,10 +1,15 @@
 <script setup>
 import './Navbar.css'
+import { onMounted } from 'vue'
 import { useUserStore } from '../../stores/userStore'
 
 const userStore = useUserStore()
 
-userStore.loadToken()
+onMounted(() => {
+  if (!userStore.user) {
+    userStore.fetchUser()
+  }
+})
 </script>
 
 <template>
@@ -39,4 +44,3 @@ userStore.loadToken()
     </div>
   </div>
 </template>
-

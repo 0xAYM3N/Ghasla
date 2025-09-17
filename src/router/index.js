@@ -63,19 +63,21 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
 
-  if (!userStore.token && to.meta.requiresAuth) {
-    return next('/login')
-  }
+  if (to.meta.requiresAuth) {
+    if (!userStore.user) {
+      await userStore.fetchUser()
+    }
 
-  if (userStore.token && userStore.role === null) {
-    await userStore.fetchUser()
+    if (!userStore.user) {
+      return next('/login')
+    }
   }
 
   if (to.meta.requiresAdmin && userStore.role !== 'admin') {
     return next('/')
   }
 
-  if ((to.path === '/login' || to.path === '/signup') && userStore.token) {
+  if ((to.path === '/login' || to.path === '/signup') && userStore.user) {
     return next('/')
   }
 
@@ -83,4 +85,3 @@ router.beforeEach(async (to, from, next) => {
 })
 
 export default router
-
