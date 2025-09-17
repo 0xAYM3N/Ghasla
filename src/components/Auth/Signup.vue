@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/userStore'
 import axios from 'axios'
+import './style.css'
 
 const router = useRouter()
 const userStore = useUserStore()
