@@ -45,19 +45,51 @@ async function cancelBooking(id) {
 async function confirmCancel() {
   if (!bookingToCancel.value) return
   try {
-    const { error } = await supabase
+    const booking = bookings.value.find(b => b.id === bookingToCancel.value)
+    if (!booking) return
+
+    const { error: updateError } = await supabase
       .from('bookings')
       .update({ status: 'ملغى' })
       .eq('id', bookingToCancel.value)
       .eq('status', 'قيد الانتظار')
 
-    if (error) throw error
+    if (updateError) throw updateError
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('balance')
+      .eq('id', booking.user_id)
+      .single()
+
+    if (profileError) throw profileError
+
+    const newBalance = parseFloat(profile.balance) + parseFloat(booking.price)
+
+    const { error: balanceError } = await supabase
+      .from('profiles')
+      .update({ balance: newBalance })
+      .eq('id', booking.user_id)
+
+    if (balanceError) throw balanceError
+
+    const { error: txError } = await supabase
+      .from('transactions')
+      .insert({
+        user_id: booking.user_id,
+        type: 'استرداد',
+        amount: booking.price,
+        notify: `تم استرداد ${booking.price}$ بسبب إلغاء الحجز`
+      })
+
+    if (txError) throw txError
 
     bookings.value = bookings.value.map(b =>
       b.id === bookingToCancel.value ? { ...b, status: 'ملغى' } : b
     )
+
   } catch (error) {
-    console.error("❌ خطأ أثناء إلغاء الحجز", error.message)
+    console.error("❌ خطأ أثناء إلغاء الحجز واسترداد الرصيد:", error.message)
   }
   bookingToCancel.value = null
   closePopup()
