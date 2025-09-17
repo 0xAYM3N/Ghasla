@@ -9,10 +9,21 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).end()
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { email, password } = req.body
+  let body = {}
+  try {
+    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+  } catch (e) {
+    return res.status(400).json({ error: 'Invalid request body' })
+  }
+
+  const { email, password } = body
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' })
+  }
 
   const { data, error } = await supabase.auth.admin.createUser({
     email,
@@ -20,7 +31,13 @@ export default async function handler(req, res) {
     email_confirm: true
   })
 
-  if (error) return res.status(400).json({ error: error.message })
+  if (error) {
+    return res.status(400).json({ error: error.message })
+  }
+
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({ error: 'Server misconfigured: JWT_SECRET missing' })
+  }
 
   const token = jwt.sign(
     { id: data.user.id, email: data.user.email, role: 'user' },
@@ -38,5 +55,5 @@ export default async function handler(req, res) {
     })
   )
 
-  res.status(200).json({ message: 'Account created' })
+  return res.status(200).json({ message: 'Account created' })
 }
