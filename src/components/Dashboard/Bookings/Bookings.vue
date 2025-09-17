@@ -21,7 +21,6 @@ function openPopup(msg, id) {
 function closePopup() {
   showPopup.value = false
   bookingToCancel.value = null
-  loadingCancel.value = false
 }
 
 async function loadBookings() {
@@ -49,53 +48,22 @@ async function confirmCancel() {
   loadingCancel.value = true
 
   try {
-    const booking = bookings.value.find(b => b.id === bookingToCancel.value)
-    if (!booking) return
-
-    const { error: updateError } = await supabase
+    const { error } = await supabase
       .from('bookings')
       .update({ status: 'ملغى' })
       .eq('id', bookingToCancel.value)
       .eq('status', 'قيد الانتظار')
 
-    if (updateError) throw updateError
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('balance')
-      .eq('id', booking.user_id)
-      .single()
-
-    if (profileError) throw profileError
-
-    const newBalance = parseFloat(profile.balance) + parseFloat(booking.price)
-
-    const { error: balanceError } = await supabase
-      .from('profiles')
-      .update({ balance: newBalance })
-      .eq('id', booking.user_id)
-
-    if (balanceError) throw balanceError
-
-    const { error: txError } = await supabase
-      .from('transactions')
-      .insert({
-        user_id: booking.user_id,
-        type: 'استرداد',
-        amount: booking.price,
-        notify: `تم استرداد ${booking.price}$ بسبب إلغاء الحجز`
-      })
-
-    if (txError) throw txError
+    if (error) throw error
 
     bookings.value = bookings.value.map(b =>
       b.id === bookingToCancel.value ? { ...b, status: 'ملغى' } : b
     )
-
   } catch (error) {
-    console.error("❌ خطأ أثناء إلغاء الحجز واسترداد الرصيد:", error.message)
+    console.error("خطأ أثناء إلغاء الحجز:", error.message)
   } finally {
     bookingToCancel.value = null
+    loadingCancel.value = false
     closePopup()
   }
 }
@@ -165,7 +133,13 @@ onMounted(() => {
         </div>
 
         <div class="card-actions" v-if="booking.status === 'قيد الانتظار'">
-          <button class="cancel-btn" @click="cancelBooking(booking.id)">إلغاء</button>
+          <button 
+            class="cancel-btn" 
+            @click="cancelBooking(booking.id)" 
+            :disabled="loadingCancel"
+          >
+            {{ loadingCancel ? "جارٍ الإلغاء..." : "إلغاء" }}
+          </button>
         </div>
       </div>
     </div>
@@ -175,12 +149,8 @@ onMounted(() => {
       <div class="popup-content">
         <h3>{{ popupMessage }}</h3>
         <div class="buttons">
-          <button 
-            class="confirm-cancel" 
-            :disabled="loadingCancel" 
-            @click="confirmCancel"
-          >
-            {{ loadingCancel ? "جاري الإلغاء..." : "تأكيد الإلغاء" }}
+          <button class="confirm-cancel" @click="confirmCancel" :disabled="loadingCancel">
+            {{ loadingCancel ? "جارٍ التنفيذ..." : "تأكيد الإلغاء" }}
           </button>
           <button class="close-popup" @click="closePopup">إغلاق</button>
         </div>
