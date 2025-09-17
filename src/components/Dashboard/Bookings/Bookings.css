@@ -35,6 +35,11 @@
   gap: 30px;
 }
 
+.booking-card.disabled-card {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 .bookings-page .bookings-cards .booking-card {
   display: flex;
   flex-direction: column;

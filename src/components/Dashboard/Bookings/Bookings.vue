@@ -6,20 +6,20 @@ import './Bookings.css'
 
 const showPopup = ref(false)
 const popupMessage = ref("")
-const bookingToDelete = ref(null)
+const bookingToCancel = ref(null)
 const bookings = ref([])
 
 const userStore = useUserStore()
 
 function openPopup(msg, id) {
   popupMessage.value = msg
-  bookingToDelete.value = id
+  bookingToCancel.value = id
   showPopup.value = true
 }
 
 function closePopup() {
   showPopup.value = false
-  bookingToDelete.value = null
+  bookingToCancel.value = null
 }
 
 async function loadBookings() {
@@ -28,35 +28,38 @@ async function loadBookings() {
     const { data, error } = await supabase
       .from('bookings')
       .select('*')
-      .eq('user_id', userStore.user.id)
-      .order('datetime', { ascending: false })
+      .eq('userId', userStore.user.id)
+      .order('createdAt', { ascending: false })
 
     if (error) throw error
     bookings.value = data || []
-  } catch (err) {
-    console.error("❌ خطأ أثناء جلب الحجوزات:", err.message)
+  } catch (error) {
+    console.error("❌ خطأ أثناء جلب الحجوزات:", error.message)
   }
 }
 
-async function deleteBooking(id) {
-  openPopup("هل أنت متأكد أنك تريد حذف هذا الحجز؟", id)
+async function cancelBooking(id) {
+  openPopup("هل أنت متأكد أنك تريد إلغاء هذا الحجز؟", id)
 }
 
-async function confirmDelete() {
-  if (!bookingToDelete.value) return
+async function confirmCancel() {
+  if (!bookingToCancel.value) return
   try {
     const { error } = await supabase
       .from('bookings')
-      .delete()
-      .eq('id', bookingToDelete.value)
+      .update({ status: 'ملغى' })
+      .eq('id', bookingToCancel.value)
+      .eq('status', 'قيد الانتظار')
 
     if (error) throw error
 
-    bookings.value = bookings.value.filter(b => b.id !== bookingToDelete.value)
-  } catch (err) {
-    console.error("❌ خطأ أثناء حذف الحجز", err.message)
+    bookings.value = bookings.value.map(b =>
+      b.id === bookingToCancel.value ? { ...b, status: 'ملغى' } : b
+    )
+  } catch (error) {
+    console.error("❌ خطأ أثناء إلغاء الحجز", error.message)
   }
-  bookingToDelete.value = null
+  bookingToCancel.value = null
   closePopup()
 }
 
@@ -89,7 +92,12 @@ onMounted(() => {
     </div>
 
     <div class="bookings-cards">
-      <div v-for="booking in bookings" :key="booking.id" class="booking-card">
+      <div 
+        v-for="booking in bookings" 
+        :key="booking.id" 
+        class="booking-card"
+        :class="{ 'disabled-card': booking.status === 'ملغى' }"
+      >
         <div class="card-row">
           <span class="label">الخدمة:</span>
           <span>{{ booking.type }}</span>
@@ -118,8 +126,9 @@ onMounted(() => {
             {{ booking.status }}
           </span>
         </div>
-        <div class="card-actions">
-          <button class="delete-btn" @click="deleteBooking(booking.id)">حذف</button>
+
+        <div class="card-actions" v-if="booking.status === 'قيد الانتظار'">
+          <button class="cancel-btn" @click="cancelBooking(booking.id)">إلغاء</button>
         </div>
       </div>
     </div>
@@ -129,7 +138,7 @@ onMounted(() => {
       <div class="popup-content">
         <h3>{{ popupMessage }}</h3>
         <div class="buttons">
-          <button class="confirm-delete" @click="confirmDelete">تأكيد الحذف</button>
+          <button class="confirm-cancel" @click="confirmCancel">تأكيد الإلغاء</button>
           <button class="close-popup" @click="closePopup">إغلاق</button>
         </div>
       </div>
