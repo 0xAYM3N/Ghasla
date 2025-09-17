@@ -8,7 +8,7 @@ const showPopup = ref(false)
 const popupMessage = ref("")
 const bookingToCancel = ref(null)
 const bookings = ref([])
-const loadingCancel = ref(false)
+const loadingCancel = ref(false) 
 
 const userStore = useUserStore()
 
@@ -21,6 +21,7 @@ function openPopup(msg, id) {
 function closePopup() {
   showPopup.value = false
   bookingToCancel.value = null
+  loadingCancel.value = false
 }
 
 async function loadBookings() {
@@ -39,33 +40,32 @@ async function loadBookings() {
   }
 }
 
-async function cancelBooking(id) {
+function cancelBooking(id) {
   openPopup("هل أنت متأكد أنك تريد إلغاء هذا الحجز؟", id)
 }
 
 async function confirmCancel() {
   if (!bookingToCancel.value || loadingCancel.value) return
-  loadingCancel.value = true
+
+  loadingCancel.value = true 
 
   try {
-    const { error } = await supabase
+    const { error: updateError } = await supabase
       .from('bookings')
       .update({ status: 'ملغى' })
       .eq('id', bookingToCancel.value)
       .eq('status', 'قيد الانتظار')
 
-    if (error) throw error
+    if (updateError) throw updateError
 
     bookings.value = bookings.value.map(b =>
       b.id === bookingToCancel.value ? { ...b, status: 'ملغى' } : b
     )
   } catch (error) {
-    console.error("خطأ أثناء إلغاء الحجز:", error.message)
-  } finally {
-    bookingToCancel.value = null
-    loadingCancel.value = false
-    closePopup()
+    console.error("❌ خطأ أثناء إلغاء الحجز:", error.message)
   }
+
+  closePopup() 
 }
 
 function formatDateTime(unix) {
@@ -84,9 +84,7 @@ function formatDateTime(unix) {
   return { date, time }
 }
 
-onMounted(() => {
-  loadBookings()
-})
+onMounted(loadBookings)
 </script>
 
 <template>
@@ -133,13 +131,7 @@ onMounted(() => {
         </div>
 
         <div class="card-actions" v-if="booking.status === 'قيد الانتظار'">
-          <button 
-            class="cancel-btn" 
-            @click="cancelBooking(booking.id)" 
-            :disabled="loadingCancel"
-          >
-            {{ loadingCancel ? "جارٍ الإلغاء..." : "إلغاء" }}
-          </button>
+          <button class="cancel-btn" @click="cancelBooking(booking.id)">إلغاء</button>
         </div>
       </div>
     </div>
@@ -149,8 +141,12 @@ onMounted(() => {
       <div class="popup-content">
         <h3>{{ popupMessage }}</h3>
         <div class="buttons">
-          <button class="confirm-cancel" @click="confirmCancel" :disabled="loadingCancel">
-            {{ loadingCancel ? "جارٍ التنفيذ..." : "تأكيد الإلغاء" }}
+          <button 
+            class="confirm-cancel" 
+            @click="confirmCancel" 
+            :disabled="loadingCancel"
+          >
+            {{ loadingCancel ? "جاري التنفيذ..." : "تأكيد الإلغاء" }}
           </button>
           <button class="close-popup" @click="closePopup">إغلاق</button>
         </div>
