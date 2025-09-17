@@ -28,8 +28,8 @@ async function loadBookings() {
     const { data, error } = await supabase
       .from('bookings')
       .select('*')
-      .eq('userId', userStore.user.id)
-      .order('createdAt', { ascending: false })
+      .eq('user_id', userStore.user.id)
+      .order('created_at', { ascending: false })
 
     if (error) throw error
     bookings.value = data || []
@@ -66,12 +66,12 @@ async function confirmCancel() {
 function formatDateTime(unix) {
   if (!unix) return { date: "-", time: "-" }
   const d = new Date(unix * 1000)
-  const date = d.toLocaleDateString("en", {
+  const date = d.toLocaleDateString("ar", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit"
   })
-  const time = d.toLocaleTimeString("en", {
+  const time = d.toLocaleTimeString("ar", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false
