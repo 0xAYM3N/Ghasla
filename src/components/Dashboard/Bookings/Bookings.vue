@@ -6,20 +6,21 @@ import './Bookings.css'
 
 const showPopup = ref(false)
 const popupMessage = ref("")
-const bookingToDelete = ref(null)
+const bookingToCancel = ref(null)
 const bookings = ref([])
+const currentUser = ref(null)
 
 const userStore = useUserStore()
 
 function openPopup(msg, id) {
   popupMessage.value = msg
-  bookingToDelete.value = id
+  bookingToCancel.value = id
   showPopup.value = true
 }
 
 function closePopup() {
   showPopup.value = false
-  bookingToDelete.value = null
+  bookingToCancel.value = null
 }
 
 function getUserEmailFromToken(token) {
@@ -40,11 +41,11 @@ async function loadBookings() {
     })
 
     const email = getUserEmailFromToken(userStore.token)
-    const user = resUsers.data.find(u => u.email === email)
+    currentUser.value = resUsers.data.find(u => u.email === email)
 
-    if (!user) return
+    if (!currentUser.value) return
 
-    const resBookings = await axios.get(`http://localhost:3000/bookings?userId=${user.id}`, {
+    const resBookings = await axios.get(`http://localhost:3000/bookings?userId=${currentUser.value.id}`, {
       headers: { Authorization: `Bearer ${userStore.token}` }
     })
 
@@ -54,21 +55,41 @@ async function loadBookings() {
   }
 }
 
-async function deleteBooking(id) {
-  openPopup("هل أنت متأكد أنك تريد حذف هذا الحجز؟", id)
+function cancelBooking(id) {
+  openPopup("هل أنت متأكد أنك تريد إلغاء هذا الحجز؟ سيتم استرجاع المبلغ.", id)
 }
 
-async function confirmDelete() {
-  if (!bookingToDelete.value) return
+async function confirmCancel() {
+  if (!bookingToCancel.value || !currentUser.value) return
+
   try {
-    await axios.delete(`http://localhost:3000/bookings/${bookingToDelete.value}`, {
+    // 1️⃣ تحديث حالة الحجز إلى "ملغى"
+    const booking = bookings.value.find(b => b.id === bookingToCancel.value)
+    if (!booking) return
+
+    await axios.patch(`http://localhost:3000/bookings/${bookingToCancel.value}`, {
+      status: 'ملغى'
+    }, {
       headers: { Authorization: `Bearer ${userStore.token}` }
     })
-    bookings.value = bookings.value.filter(b => b.id !== bookingToDelete.value)
+
+    // 2️⃣ استرجاع المبلغ إلى رصيد المستخدم
+    const newBalance = currentUser.value.balance + booking.price
+    await axios.patch(`http://localhost:3000/users/${currentUser.value.id}`, {
+      balance: newBalance
+    }, {
+      headers: { Authorization: `Bearer ${userStore.token}` }
+    })
+
+    currentUser.value.balance = newBalance
+
+    // 3️⃣ تحديث القائمة محلياً
+    booking.status = 'ملغى'
+
   } catch (error) {
-    console.error("❌ خطأ أثناء حذف الحجز", error)
+    console.error("❌ خطأ أثناء إلغاء الحجز", error)
   }
-  bookingToDelete.value = null
+
   closePopup()
 }
 
@@ -101,7 +122,12 @@ onMounted(() => {
     </div>
 
     <div class="bookings-cards">
-      <div v-for="booking in bookings" :key="booking.id" class="booking-card">
+      <div 
+        v-for="booking in bookings" 
+        :key="booking.id" 
+        class="booking-card"
+        :class="{ 'disabled-card': booking.status !== 'قيد الانتظار' }"
+      >
         <div class="card-row">
           <span class="label">الخدمة:</span>
           <span>{{ booking.type }}</span>
@@ -130,8 +156,9 @@ onMounted(() => {
             {{ booking.status }}
           </span>
         </div>
-        <div class="card-actions">
-          <button class="delete-btn" @click="deleteBooking(booking.id)">حذف</button>
+
+        <div class="card-actions" v-if="booking.status === 'قيد الانتظار'">
+          <button class="cancel-btn" @click="cancelBooking(booking.id)">إلغاء</button>
         </div>
       </div>
     </div>
@@ -141,7 +168,7 @@ onMounted(() => {
       <div class="popup-content">
         <h3>{{ popupMessage }}</h3>
         <div class="buttons">
-          <button class="confirm-delete" @click="confirmDelete">تأكيد الحذف</button>
+          <button class="confirm-delete" @click="confirmCancel">تأكيد الإلغاء</button>
           <button class="close-popup" @click="closePopup">إغلاق</button>
         </div>
       </div>

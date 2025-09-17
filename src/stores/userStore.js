@@ -3,24 +3,27 @@ import axios from 'axios'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    user: null,
-    role: null
+    userId: null,
+    role: null,
+    balance: null
   }),
 
   getters: {
-    isLoggedIn: (state) => !!state.user
+    isLoggedIn: (state) => !!state.userId
   },
 
   actions: {
     async fetchUser() {
       try {
         const res = await axios.get('/api/profile', { withCredentials: true })
-        this.user = res.data.user
-        this.role = res.data.role
+        this.userId = res.data.user.id
+        this.role = res.data.user.role
+        this.balance = res.data.user.balance
       } catch (err) {
         console.error('fetchUser error:', err)
-        this.user = null
+        this.userId = null
         this.role = null
+        this.balance = null
       }
     },
 
@@ -30,10 +33,10 @@ export const useUserStore = defineStore('user', {
       } catch (err) {
         console.error('logout error:', err)
       } finally {
-        this.user = null
+        this.userId = null
         this.role = null
+        this.balance = null
       }
     }
   }
 })
-

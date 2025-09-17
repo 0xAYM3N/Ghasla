@@ -31,25 +31,18 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid credentials' })
   }
 
-  if (!process.env.JWT_SECRET) {
-    return res.status(500).json({ error: 'Server misconfigured: JWT_SECRET missing' })
-  }
-
   const token = jwt.sign(
-    { id: data.user.id },
+    { userId: data.user.id },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   )
 
-  res.setHeader(
-    'Set-Cookie',
-    cookie.serialize('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/'
-    })
-  )
+  res.setHeader('Set-Cookie', cookie.serialize('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/'
+  }))
 
-  return res.status(200).json({ message: 'Logged in', id: data.user.id })
+  return res.status(200).json({ message: 'Logged in' })
 }

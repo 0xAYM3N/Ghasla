@@ -41,18 +41,21 @@ async function submitSignupForm() {
   message.value = ''
 
   try {
-    await axios.post('/api/signup', {
+    const response = await axios.post('/api/signup', {
       email: form.value.email,
       password: form.value.password
     }, { withCredentials: true })
 
-    const profile = await axios.get('/api/profile', { withCredentials: true })
+    const token = response.data.token 
+    
+    localStorage.setItem('token', token)
+    
+    const decodedToken = jwtDecode(token) 
+    
+    userStore.user = decodedToken.user
+    userStore.role = decodedToken.role
 
-    if (profile.data) {
-      userStore.user = profile.data.user
-      userStore.role = profile.data.role
-      router.push('/')
-    }
+    router.push('/')
   } catch (err) {
     console.error(err)
     message.value = 'تعذر إنشاء الحساب'

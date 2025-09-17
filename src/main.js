@@ -10,8 +10,11 @@ const app = createApp(App)
 app.use(createPinia()) 
 app.use(router)
 
-const userStore = useUserStore()
-userStore.fetchUser()
-
 app.mount('#app')
+
+// بعد تحميل الـ app نتحقق من بيانات المستخدم
+app.config.globalProperties.$nextTick(() => {
+  const userStore = useUserStore()
+  userStore.fetchUser()
+})
 

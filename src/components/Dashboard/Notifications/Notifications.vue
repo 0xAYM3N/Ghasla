@@ -80,7 +80,7 @@ async function deleteNotification(id) {
       })
     } else if (id.startsWith('booking-')) {
       const bookingId = id.replace('booking-', '')
-      await axios.patch(`http://localhost:3000/bookings/${bookingId}`, { notify: null }, {
+      await axios.patch(`/api/bookings/${bookingId}`, { notify: null }, {
         headers: { Authorization: `Bearer ${userStore.token}` }
       })
     }
@@ -112,7 +112,7 @@ async function deleteAll() {
       headers: { Authorization: `Bearer ${userStore.token}` }
     })
 
-    const bookingsResponse = await axios.get(`http://localhost:3000/bookings?userId=${currentUser.id}`, {
+    const bookingsResponse = await axios.get(`/api/bookings?userId=${currentUser.id}`, {
       headers: { Authorization: `Bearer ${userStore.token}` }
     })
     for (const booking of bookingsResponse.data) {

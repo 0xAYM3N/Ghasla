@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue"
+import { ref, computed } from "vue"
 import axios from "axios"
 import DateTimePicker from '../DateTimePicker/DateTimePicker.vue'
 import MapSelector from '../MapSelector/MapSelector.vue'
@@ -8,39 +8,8 @@ import { useUserStore } from '../../stores/userStore'
 import './Booking.css'
 
 const userStore = useUserStore()
-const currentUser = ref(null)
-const userLoaded = ref(false)
 
-function decodeToken(token) {
-  try {
-    const base64 = token.split('.')[1]
-    const payload = JSON.parse(atob(base64))
-    return payload
-  } catch {
-    return {}
-  }
-}
-
-async function fetchUser() {
-  if (!userStore.token) return
-  const payload = decodeToken(userStore.token)
-  const userId = payload.sub || payload.id
-  if (!userId) return
-
-  try {
-    const { data } = await axios.get(`http://localhost:3000/users/${userId}`, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-    currentUser.value = data
-    userLoaded.value = true
-  } catch (err) {
-    console.error("❌ خطأ بجلب بيانات المستخدم:", err)
-  }
-}
-
-onMounted(fetchUser)
-
-const isLoggedIn = computed(() => !!userStore.token && !!currentUser.value)
+const isLoggedIn = computed(() => !!userStore.token)
 
 const step = ref(1)
 const showDone = ref(false)
@@ -92,7 +61,7 @@ function updateDateTime() {
 
 function formatDate(unix) {
   if (!unix) return ""
-  return new Date(unix * 1000).toLocaleDateString("en", {
+  return new Date(unix * 1000).toLocaleDateString("ar", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit"
@@ -100,7 +69,7 @@ function formatDate(unix) {
 }
 function formatTime(unix) {
   if (!unix) return ""
-  return new Date(unix * 1000).toLocaleTimeString("en", {
+  return new Date(unix * 1000).toLocaleTimeString("ar", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false
@@ -121,20 +90,17 @@ async function submitBookingForm() {
   }
 
   try {
-    const now = new Date().toISOString()
-
     const bookingData = {
-      userId: currentUser.value.id,
       type: selectedType.value,
       location: markerPosition.value,
       price: selectedPrice.value,
       datetime: datetime.value,
       status: "قيد الانتظار",
-      createdAt: now,
+      createdAt: new Date().toISOString(),
       notify: `تم إنشاء حجز ${selectedType.value} بسعر ${selectedPrice.value}$`
     }
 
-    await axios.post("http://localhost:3000/bookings", bookingData, {
+    await axios.post("/api/bookings", bookingData, {
       headers: { Authorization: `Bearer ${userStore.token}` }
     })
 
