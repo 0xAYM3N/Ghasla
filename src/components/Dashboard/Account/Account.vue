@@ -61,6 +61,12 @@ const handleSave = async (field) => {
 
   try {
     if (field === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(value)) {
+        fieldMessages.email = "الرجاء إدخال بريد إلكتروني صالح"
+        return
+      }
+
       const { error } = await supabase.auth.updateUser({ email: value })
       if (error) {
         if (error.message.includes("already registered")) {
