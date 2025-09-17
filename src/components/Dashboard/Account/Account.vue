@@ -79,7 +79,7 @@ const handleSave = async (field) => {
 
       originalValues.email = value
       userStore.user = { ...userStore.user, email: value }
-      globalMessage.value = 'تم تحديث البريد الإلكتروني، الرجاء تأكيد البريد الجديد من خلال الرسالة المرسلة'
+      globalMessage.value = 'تم تحديث البريد الإلكتروني'
     }
 
     if (field === 'password') {
