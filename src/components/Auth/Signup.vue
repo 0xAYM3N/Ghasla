@@ -63,7 +63,6 @@ async function submitSignupForm() {
           id: user.id,
           role: 'user',
           balance: 0,
-          transactions: []
         }
       ])
 
