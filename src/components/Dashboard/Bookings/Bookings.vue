@@ -8,6 +8,8 @@ const showPopup = ref(false)
 const popupMessage = ref("")
 const bookingToCancel = ref(null)
 const bookings = ref([])
+const balance = ref(0)
+const loading = ref(false)
 
 const userStore = useUserStore()
 
@@ -34,7 +36,23 @@ async function loadBookings() {
     if (error) throw error
     bookings.value = data || []
   } catch (error) {
-    console.error("❌ خطأ أثناء جلب الحجوزات:", error.message)
+    console.error("❌ Error loading bookings:", error.message)
+  }
+}
+
+async function loadBalance() {
+  if (!userStore.user) return
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('balance')
+      .eq('id', userStore.user.id)
+      .single()
+
+    if (error) throw error
+    balance.value = data.balance || 0
+  } catch (error) {
+    console.error("❌ Error loading balance:", error.message)
   }
 }
 
@@ -44,22 +62,23 @@ function cancelBooking(id) {
 
 async function confirmCancel() {
   if (!bookingToCancel.value) return
+  loading.value = true
 
   try {
-    const { error: updateError } = await supabase
-      .from('bookings')
-      .update({ status: 'ملغى' })
-      .eq('id', bookingToCancel.value)
+    const { error } = await supabase.rpc('refund_booking', {
+      booking_id: bookingToCancel.value,
+      user_id_input: userStore.user.id
+    })
 
-    if (updateError) throw updateError
+    if (error) throw error
 
-    bookings.value = bookings.value.map(b =>
-      b.id === bookingToCancel.value ? { ...b, status: 'ملغى' } : b
-    )
+    await loadBookings()
+    await loadBalance()
   } catch (error) {
-    console.error("❌ خطأ أثناء إلغاء الحجز:", error.message)
+    console.error("❌ Error in refund_booking:", error.message)
   }
 
+  loading.value = false
   closePopup()
 }
 
@@ -79,7 +98,10 @@ function formatDateTime(unix) {
   return { date, time }
 }
 
-onMounted(loadBookings)
+onMounted(async () => {
+  await loadBookings()
+  await loadBalance()
+})
 </script>
 
 <template>
@@ -87,6 +109,11 @@ onMounted(loadBookings)
     <div class="header">
       <h2>إدارة الحجوزات</h2>
       <router-link class="add-btn" to="/booking">+ إضافة حجز جديد</router-link>
+    </div>
+
+    <div class="balance-box">
+      <strong>رصيدك الحالي:</strong>
+      <span>{{ balance }} $</span>
     </div>
 
     <div class="bookings-cards">
@@ -110,7 +137,7 @@ onMounted(loadBookings)
         </div>
         <div class="card-row">
           <span class="label">سعر الخدمة:</span>
-          <span>{{ booking.price }}$</span>
+          <span>{{ booking.price }} $</span>
         </div>
         <div class="card-row">
           <span class="label">الحالة:</span>
@@ -136,11 +163,16 @@ onMounted(loadBookings)
       <div class="popup-content">
         <h3>{{ popupMessage }}</h3>
         <div class="buttons">
-          <button class="confirm-cancel" @click="confirmCancel">تأكيد الإلغاء</button>
+          <button 
+            class="confirm-cancel" 
+            @click="confirmCancel" 
+            :disabled="loading"
+          >
+            {{ loading ? "جارٍ الإلغاء..." : "تأكيد الإلغاء" }}
+          </button>
           <button class="close-popup" @click="closePopup">إغلاق</button>
         </div>
       </div>
     </div>
   </div>
 </template>
-
