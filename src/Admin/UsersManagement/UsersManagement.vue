@@ -18,6 +18,7 @@ async function loadUsers() {
     const { data, error: usersError } = await supabase
       .from("users_with_email")
       .select("*")
+      .order("created_at", { ascending: false }) 
 
     if (usersError) throw usersError
 
@@ -82,7 +83,7 @@ onMounted(loadUsers)
           </thead>
           <tbody>
             <tr v-for="(u, index) in filteredUsers" :key="u.id">
-              <td>{{ index + 1 }}</td>
+              <td>{{ filteredUsers.length - index }}</td>
               <td>{{ u.email }}</td>
               <td>{{ u.role }}</td>
               <td>{{ u.balance }}</td>
