@@ -1,7 +1,8 @@
 <script setup>
-import { ref, watch } from "vue"
-import { useUserStore } from "../../../stores/userStore"
-import { supabase } from "../../../lib/supabaseClient"
+import { ref, onMounted } from 'vue'
+import { supabase } from '../../../lib/supabaseClient'
+import { useUserStore } from '../../../stores/userStore'
+import './Notifications.css'
 
 const userStore = useUserStore()
 const notifications = ref([])
@@ -16,46 +17,38 @@ async function loadNotifications() {
     errorMessage.value = null
 
     const { data, error } = await supabase
-      .from("notifications")
-      .select("*")
-      .order("created_at", { ascending: false })
+      .from('notifications') 
+      .select('*')
+      .eq('user_id', userStore.user.id) 
+      .order('created_at', { ascending: false })
 
     if (error) throw error
 
-    notifications.value = data
+    notifications.value = data || []
   } catch (err) {
-    console.error("❌ خطأ أثناء جلب الإشعارات:", err.message)
-    errorMessage.value = "تعذر جلب الإشعارات. حاول لاحقاً."
+    console.error('❌ Error loading notifications:', err.message)
+    errorMessage.value = 'فشل في جلب الإشعارات'
   } finally {
     isLoading.value = false
   }
 }
 
-watch(
-  () => userStore.isAuthReady,
-  (ready) => {
-    if (ready && userStore.user) {
-      loadNotifications()
-    }
-  },
-  { immediate: true }
-)
+onMounted(() => {
+  loadNotifications()
+})
 </script>
 
 <template>
   <div class="notifications-page">
-    <div class="header">
-      <h2>الإشعارات</h2>
-    </div>
+    <h2>الإشعارات</h2>
 
     <p v-if="isLoading">⏳ جاري التحميل...</p>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <p v-if="errorMessage">{{ errorMessage }}</p>
 
     <ul v-if="!isLoading && notifications.length">
-      <li v-for="n in notifications" :key="`${n.source}-${n.id}`">
-        <span>{{ n.notify }}</span>
-        <small>({{ n.source }})</small>
-        <small>{{ new Date(n.created_at).toLocaleString() }}</small>
+      <li v-for="n in notifications" :key="n.source + '-' + n.id">
+        <b>[{{ n.source }}]</b> {{ n.notify }}
+        <small>({{ new Date(n.created_at).toLocaleString() }})</small>
       </li>
     </ul>
 
