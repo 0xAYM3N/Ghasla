@@ -7,6 +7,7 @@ defineProps({
 
 const navItems = [
   { path: '/admin/statistic', icon: 'fa-chart-simple', label: 'احصائيات' },
+  { path: '/admin/users-management', icon: 'fa-user', label: 'ادارة الحسابات' },
   { path: '/admin/clients-bookings', icon: 'fa-calendar', label: 'حجوزات العملاء' },
 ]
 </script>
