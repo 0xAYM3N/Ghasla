@@ -70,7 +70,7 @@ async function submitSignupForm() {
 
     await userStore.initAuth()
 
-    router.push('/dashboard')
+    router.push('/')
   } catch (error) {
     console.error(error)
     message.value = error.message || 'فشل إنشاء الحساب، تحقق من اتصالك'
