@@ -23,12 +23,10 @@ function closePopup() {
 }
 
 async function loadBookings() {
-  if (!userStore.user) return
   try {
     const { data, error } = await supabase
       .from('bookings')
-      .select('*')
-      .eq('user_id', userStore.user.id)
+      .select('*') 
       .order('created_at', { ascending: false })
 
     if (error) throw error
