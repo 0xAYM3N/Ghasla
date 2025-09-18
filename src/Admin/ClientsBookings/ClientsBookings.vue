@@ -12,7 +12,7 @@ const showMapModal = ref(false)
 const selectedUserCoords = ref([24.7136, 46.6753])
 
 const searchQuery = ref("")
-const searchField = ref("id")
+const searchField = ref("email")
 
 async function loadData() {
   try {
@@ -39,8 +39,7 @@ async function updateBookingStatus(booking, newStatus) {
     const { error } = await supabase
       .from("bookings")
       .update({ status: newStatus })
-      .eq("id", booking.id)
-
+      .eq("id", booking.id) 
     if (error) throw error
   } catch (err) {
     console.error("❌ خطأ أثناء تحديث الحالة:", err.message)
@@ -72,7 +71,6 @@ const filteredBookings = computed(() => {
   if (searchQuery.value.trim() !== "") {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(b => {
-      if (searchField.value === "id") return b.id.toString().includes(query)
       if (searchField.value === "type") return b.type?.toLowerCase().includes(query)
       if (searchField.value === "email") return b.email?.toLowerCase().includes(query)
       return false
@@ -101,7 +99,6 @@ onMounted(loadData)
         </div>
         <div class="search">
           <select v-model="searchField">
-            <option value="id">رقم الحجز</option>
             <option value="email">إيميل العميل</option>
             <option value="type">نوع الخدمة</option>
           </select>
@@ -126,8 +123,8 @@ onMounted(loadData)
             </tr>
           </thead>
           <tbody>
-            <tr v-for="b in filteredBookings" :key="b.id">
-              <td>{{ b.id }}</td>
+            <tr v-for="(b, index) in filteredBookings" :key="b.id">
+              <td>{{ index + 1 }}</td>
               <td>{{ b.type }}</td>
               <td>{{ b.price }}$</td>
               <td>
