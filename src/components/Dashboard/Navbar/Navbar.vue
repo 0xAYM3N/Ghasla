@@ -1,21 +1,9 @@
 <script setup>
 import "./Navbar.css"
-import { useUserStore } from "../../../stores/userStore"
-import { useRouter } from "vue-router"
 
 const props = defineProps({
   toggleSidebar: { type: Function, required: true }
 })
-
-const userStore = useUserStore()
-const router = useRouter()
-
-function logout() {
-  if (userStore.isLoggedIn) {
-    userStore.logout()
-    router.push("/login")
-  }
-}
 </script>
 
 <template>
@@ -24,14 +12,9 @@ function logout() {
       <i class="fa-solid fa-bars"></i>
     </button>
 
-    <button 
-      v-if="userStore.isLoggedIn" 
-      class="logout-btn" 
-      @click="logout"
-    >
-      <i class="fa-solid fa-right-from-bracket"></i>
-      تسجيل خروج
-    </button>
+    <router-link to="/">
+      <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      الصفحة الرئيسية
+    </router-link>
   </div>
 </template>
-

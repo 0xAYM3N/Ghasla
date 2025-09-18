@@ -14,7 +14,7 @@ const props = defineProps({
 
     <router-link to="/">
       <i class="fa-solid fa-arrow-up-right-from-square"></i>
-      صفحة الموقع
+      الصفحة الرئيسية
     </router-link>
   </div>
 </template>
