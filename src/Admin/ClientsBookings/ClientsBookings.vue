@@ -8,11 +8,11 @@ const bookings = ref([])
 const loading = ref(true)
 const error = ref(null)
 const filterStatus = ref("all")
+const filterType = ref("all")
 const showMapModal = ref(false)
 const selectedUserCoords = ref([24.7136, 46.6753])
 
 const searchQuery = ref("")
-const searchField = ref("email")
 
 async function loadData() {
   try {
@@ -81,13 +81,13 @@ const filteredBookings = computed(() => {
     result = result.filter(b => b.status === filterStatus.value)
   }
 
+  if (filterType.value !== "all") {
+    result = result.filter(b => b.type === filterType.value)
+  }
+
   if (searchQuery.value.trim() !== "") {
     const query = searchQuery.value.toLowerCase()
-    result = result.filter(b => {
-      if (searchField.value === "type") return b.type?.toLowerCase().includes(query)
-      if (searchField.value === "email") return b.email?.toLowerCase().includes(query)
-      return false
-    })
+    result = result.filter(b => b.email?.toLowerCase().includes(query))
   }
 
   return result
@@ -102,7 +102,6 @@ onMounted(loadData)
       <h2>جميع الحجوزات</h2>
       <div class="controls">
         <div class="filter">
-          <label>تصفية:</label>
           <select v-model="filterStatus">
             <option value="all">الكل</option>
             <option value="قيد الانتظار">قيد الانتظار</option>
@@ -110,12 +109,16 @@ onMounted(loadData)
             <option value="ملغى">ملغى</option>
           </select>
         </div>
-        <div class="search">
-          <select v-model="searchField">
-            <option value="email">إيميل العميل</option>
-            <option value="type">نوع الخدمة</option>
+        <div class="filter">
+          <select v-model="filterType">
+            <option value="all">الكل</option>
+            <option value="غسل شامل">غسل شامل</option>
+            <option value="غسل داخلي">غسل داخلي</option>
+            <option value="غسل خارجي">غسل خارجي</option>
           </select>
-          <input type="text" v-model="searchQuery" placeholder="ابحث هنا..." />
+        </div>
+        <div class="search">
+          <input type="text" v-model="searchQuery" placeholder="ابحث عن إيميل العميل..." />
         </div>
       </div>
     </div>
@@ -179,3 +182,4 @@ onMounted(loadData)
     </div>
   </div>
 </template>
+
