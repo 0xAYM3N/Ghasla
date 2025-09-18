@@ -15,15 +15,27 @@ async function loadNotifications() {
     isLoading.value = true
     errorMessage.value = null
 
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
+    const { data: tx, error: txError } = await supabase
+      .from('transactions')
+      .select('id, notify, created_at')
       .eq('user_id', userStore.user.id)
-      .order('created_at', { ascending: false })
+      .not('notify', 'is', null)
 
-    if (error) throw error
+    if (txError) throw txError
 
-    notifications.value = data || []
+    const { data: bk, error: bkError } = await supabase
+      .from('bookings')
+      .select('id, notify, created_at')
+      .eq('user_id', userStore.user.id)
+      .not('notify', 'is', null)
+
+    if (bkError) throw bkError
+
+    notifications.value = [
+      ...(tx || []).map(n => ({ ...n, source: 'transaction' })),
+      ...(bk || []).map(n => ({ ...n, source: 'booking' }))
+    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+
   } catch (err) {
     console.error('❌ خطأ في جلب الإشعارات:', err.message)
     errorMessage.value = 'فشل في جلب الإشعارات'
@@ -55,7 +67,7 @@ async function deleteNotification(n) {
 
     notifications.value = notifications.value.filter(x => !(x.id === n.id && x.source === n.source))
   } catch (err) {
-    console.error('❌ خطأ أثناء حذف الإشعار:', err.message)
+    console.error('خطأ أثناء حذف الإشعار:', err.message)
   }
 }
 
@@ -83,7 +95,7 @@ onMounted(loadNotifications)
 <template>
   <div class="notifications-page">
     <div class="header">
-      <h2>📢 الإشعارات</h2>
+      <h2>الإشعارات</h2>
       <button v-if="notifications.length" @click="deleteAll" class="delete-all">
         حذف الكل
       </button>
@@ -103,7 +115,7 @@ onMounted(loadNotifications)
       </thead>
       <tbody>
         <tr v-for="n in notifications" :key="n.source + '-' + n.id">
-          <td>{{ n.source }}</td>
+          <td>{{ n.source === 'transaction' ? 'معاملة' : 'حجز' }}</td>
           <td>{{ n.notify }}</td>
           <td>{{ formatDateTime(n.created_at) }}</td>
           <td><button @click="deleteNotification(n)">حذف</button></td>
