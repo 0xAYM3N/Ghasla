@@ -18,6 +18,7 @@ import Wallet from '../components/Dashboard/Wallet/Wallet.vue'
 // Admin Dashboard
 import AdminLayout from '../Admin/AdminLayout.vue'
 import Statistic from '../Admin/Statistic/Statistic.vue'
+import UsersManagement from '../Admin/UsersManagement/UsersManagement.vue'
 import ClientsBookings from '../Admin/ClientsBookings/ClientsBookings.vue'
 
 const routes = [
@@ -48,6 +49,7 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true },
     children: [
       { path: 'statistic', component: Statistic },
+      { path: 'users-management', component: UsersManagement },
       { path: 'clients-bookings', component: ClientsBookings },
       { path: '', redirect: '/admin/statistic' }
     ]

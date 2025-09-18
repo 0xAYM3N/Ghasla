@@ -1,0 +1,114 @@
+.users-management {
+  padding: 20px;
+  color: var(--white);
+}
+
+.users-management .header {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.users-management .header h2 {
+  color: var(--blue);
+  margin-bottom: 10px;
+}
+
+.users-management .controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.users-management .filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.users-management .search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1;
+}
+
+.users-management .filter label {
+  font-weight: bold;
+  color: var(--p);
+}
+
+.users-management .filter select,
+.users-management .search input {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--navbar);
+  color: var(--white);
+}
+
+.users-management .search input {
+  flex: 1;
+}
+
+.users-table-container {
+  width: 100%;
+  overflow-x: auto; 
+}
+
+.users-management .users-table {
+  width: 100%;
+  min-width: 700px; 
+  border-collapse: collapse;
+  background: var(--background);
+  font-size: 14px;
+}
+
+.users-management .users-table th,
+.users-management .users-table td {
+  padding: 12px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.users-management .users-table th {
+  background: var(--navbar);
+  color: var(--blue);
+  font-weight: bold;
+}
+
+.users-management .loading {
+  color: var(--p);
+}
+
+.users-management .error {
+  color: var(--red);
+}
+
+@media (max-width: 668px) {
+  .users-management .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .users-management .controls {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .users-management .search,
+  .users-management .filter {
+    width: 100%;
+  }
+
+  .users-management .search input,
+  .users-management .filter select {
+    width: 100%;
+  }
+}
+
