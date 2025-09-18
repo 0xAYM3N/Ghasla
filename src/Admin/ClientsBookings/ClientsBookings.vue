@@ -21,10 +21,7 @@ async function loadData() {
 
     const { data: bookingsData, error: bookingsError } = await supabase
       .from("bookings")
-      .select(`
-        *,
-        profiles ( email )
-      `)
+      .select("*")
 
     if (bookingsError) throw bookingsError
 
@@ -77,9 +74,7 @@ const filteredBookings = computed(() => {
     result = result.filter(b => {
       if (searchField.value === "id") return b.id.toString().includes(query)
       if (searchField.value === "type") return b.type?.toLowerCase().includes(query)
-      if (searchField.value === "email") {
-        return b.profiles?.email?.toLowerCase().includes(query)
-      }
+      if (searchField.value === "email") return b.email?.toLowerCase().includes(query)
       return false
     })
   }
@@ -151,7 +146,7 @@ onMounted(loadData)
                   <option value="ملغى">ملغى</option>
                 </select>
               </td>
-              <td>{{ b.profiles?.email || "-" }}</td>
+              <td>{{ b.email || "-" }}</td>
               <td>
                 <button class="show-map-btn" @click="openMapModal(b)">
                   عرض موقع العميل
