@@ -165,26 +165,19 @@
   opacity: 0.8;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .clients-bookings .controls {
     flex-direction: column;
-    gap: 10px;
+    width: 100%;
   }
 
+  .clients-bookings .filter,
   .clients-bookings .search {
     width: 100%;
   }
 
-  .clients-bookings .bookings-table th,
-  .clients-bookings .bookings-table td {
-    padding: 8px;
-    font-size: 13px;
+  .clients-bookings .filter select,
+  .clients-bookings .search input {
+    width: 100%;
   }
 }
-
-@media (max-width: 768px) {
-  .bookings-table-container {
-    overflow-x: auto; 
-  }
-}
-
