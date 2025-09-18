@@ -20,7 +20,14 @@ onMounted(() => {
     { attribution: 'Tiles &copy; Esri', maxZoom: 19 }
   ).addTo(map)
 
-  L.marker(props.coords, { draggable: false }).addTo(map)
+  const customIcon = L.divIcon({
+    html: `<i class="fa-solid fa-location-dot" style="font-size:22px; color:red;"></i>`,
+    className: "custom-fa-icon",
+    iconSize: [22, 22],
+    iconAnchor: [11, 22]
+  })
+
+  L.marker(props.coords, { draggable: false, icon: customIcon }).addTo(map)
 })
 </script>
 
