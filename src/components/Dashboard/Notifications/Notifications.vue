@@ -11,50 +11,108 @@ const errorMessage = ref(null)
 
 async function loadNotifications() {
   if (!userStore.user) return
-
   try {
     isLoading.value = true
     errorMessage.value = null
 
     const { data, error } = await supabase
-      .from('notifications') 
+      .from('notifications')
       .select('*')
-      .eq('user_id', userStore.user.id) 
+      .eq('user_id', userStore.user.id)
       .order('created_at', { ascending: false })
 
     if (error) throw error
 
     notifications.value = data || []
   } catch (err) {
-    console.error('❌ Error loading notifications:', err.message)
+    console.error('❌ خطأ في جلب الإشعارات:', err.message)
     errorMessage.value = 'فشل في جلب الإشعارات'
   } finally {
     isLoading.value = false
   }
 }
 
-onMounted(() => {
-  loadNotifications()
-})
+function formatDateTime(date) {
+  const d = new Date(date)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
+}
+
+async function deleteNotification(n) {
+  try {
+    if (n.source === 'transaction') {
+      const { error } = await supabase
+        .from('transactions')
+        .update({ notify: null })
+        .eq('id', n.id)
+      if (error) throw error
+    } else if (n.source === 'booking') {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ notify: null })
+        .eq('id', n.id)
+      if (error) throw error
+    }
+
+    notifications.value = notifications.value.filter(x => !(x.id === n.id && x.source === n.source))
+  } catch (err) {
+    console.error('❌ خطأ أثناء حذف الإشعار:', err.message)
+  }
+}
+
+async function deleteAll() {
+  try {
+    await supabase
+      .from('transactions')
+      .update({ notify: null })
+      .eq('user_id', userStore.user.id)
+
+    await supabase
+      .from('bookings')
+      .update({ notify: null })
+      .eq('user_id', userStore.user.id)
+
+    notifications.value = []
+  } catch (err) {
+    console.error('❌ خطأ أثناء حذف جميع الإشعارات:', err.message)
+  }
+}
+
+onMounted(loadNotifications)
 </script>
 
 <template>
   <div class="notifications-page">
-    <h2>الإشعارات</h2>
+    <div class="header">
+      <h2>📢 الإشعارات</h2>
+      <button v-if="notifications.length" @click="deleteAll" class="delete-all">
+        حذف الكل
+      </button>
+    </div>
 
     <p v-if="isLoading">⏳ جاري التحميل...</p>
     <p v-if="errorMessage">{{ errorMessage }}</p>
 
-    <ul v-if="!isLoading && notifications.length">
-      <li v-for="n in notifications" :key="n.source + '-' + n.id">
-        <b>[{{ n.source }}]</b> {{ n.notify }}
-        <small>({{ new Date(n.created_at).toLocaleString() }})</small>
-      </li>
-    </ul>
+    <table v-if="!isLoading && notifications.length" class="notifications-table">
+      <thead>
+        <tr>
+          <th>المصدر</th>
+          <th>الإشعار</th>
+          <th>التاريخ والوقت</th>
+          <th>إجراء</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="n in notifications" :key="n.source + '-' + n.id">
+          <td>{{ n.source }}</td>
+          <td>{{ n.notify }}</td>
+          <td>{{ formatDateTime(n.created_at) }}</td>
+          <td><button @click="deleteNotification(n)">حذف</button></td>
+        </tr>
+      </tbody>
+    </table>
 
     <p v-if="!isLoading && notifications.length === 0">
       لا توجد إشعارات حالياً
     </p>
   </div>
 </template>
-
