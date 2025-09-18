@@ -1,16 +1,21 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
 import { supabase } from '../../../lib/supabaseClient'
 import './Notifications.css'
 
 const userStore = useUserStore()
 const notifications = ref([])
+const isLoading = ref(false)
+const errorMessage = ref(null)
 
 async function loadNotifications() {
   if (!userStore.user) return
 
   try {
+    isLoading.value = true
+    errorMessage.value = null
+
     const { data: txs, error: txError } = await supabase
       .from('transactions')
       .select('id, notify, created_at')
@@ -44,6 +49,9 @@ async function loadNotifications() {
 
   } catch (error) {
     console.error('❌ خطأ أثناء جلب الإشعارات:', error.message)
+    errorMessage.value = 'تعذر جلب الإشعارات. حاول لاحقاً.'
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -67,7 +75,7 @@ async function deleteNotification(id) {
 
     notifications.value = notifications.value.filter(n => n.id !== id)
   } catch (error) {
-    console.error('خطأ أثناء حذف الإشعار:', error.message)
+    console.error('❌ خطأ أثناء حذف الإشعار:', error.message)
   }
 }
 
@@ -85,28 +93,43 @@ async function deleteAll() {
 
     notifications.value = []
   } catch (error) {
-    console.error('خطأ أثناء حذف جميع الإشعارات:', error.message)
+    console.error('❌ خطأ أثناء حذف جميع الإشعارات:', error.message)
   }
 }
 
-onMounted(loadNotifications)
+watch(
+  () => userStore.isAuthReady,
+  (ready) => {
+    if (ready && userStore.user) {
+      loadNotifications()
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
   <div class="notifications-page">
     <div class="header">
       <h2>الإشعارات</h2>
-      <button v-if="notifications.length" @click="deleteAll">حذف الكل</button>
+      <button v-if="notifications.length" @click="deleteAll" class="delete-all">
+        حذف الكل
+      </button>
     </div>
 
-    <ul>
+    <p v-if="isLoading">⏳ جاري التحميل...</p>
+
+    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+
+    <ul v-if="!isLoading && notifications.length">
       <li v-for="n in notifications" :key="n.id">
         <span>{{ n.message }}</span>
         <button @click="deleteNotification(n.id)">حذف</button>
       </li>
     </ul>
 
-    <p v-if="notifications.length === 0">لا توجد إشعارات حالياً</p>
+    <p v-if="!isLoading && notifications.length === 0">
+      لا توجد إشعارات حالياً
+    </p>
   </div>
 </template>
-
