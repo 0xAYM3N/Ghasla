@@ -3,8 +3,10 @@ import './Account.css'
 import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
 import { supabase } from '../../../lib/supabaseClient'
+import { useRouter } from 'vue-router'
 
 const userStore = useUserStore()
+const router = useRouter()
 
 const form = reactive({
   email: '',
@@ -106,6 +108,14 @@ const handleSave = async (field) => {
     fieldMessages[field] = 'حدث خطأ أثناء التحديث'
   }
 }
+
+// Logout
+function logout() {
+  if (userStore.isLoggedIn) {
+    userStore.logout()
+    router.push('/login')
+  }
+}
 </script>
 
 <template>
@@ -142,5 +152,13 @@ const handleSave = async (field) => {
       </div>
       <p class="error" v-if="fieldMessages.password">{{ fieldMessages.password }}</p>
     </div>
+
+    <div class="form-row logout-section">
+      <button class="logout-btn" @click="logout">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        تسجيل خروج
+      </button>
+    </div>
   </div>
 </template>
+
