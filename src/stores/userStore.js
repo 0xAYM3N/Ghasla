@@ -1,58 +1,77 @@
 import { defineStore } from 'pinia'
+import { supabase } from '../lib/supabaseClient'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    token: localStorage.getItem('token') || null,
+    user: null,
+    profile: null,
     role: null,
-    user: null
+    isAuthReady: false
   }),
 
   getters: {
-    isLoggedIn: (state) => !!state.token
+    isLoggedIn: (state) => !!state.user
   },
 
   actions: {
     async fetchUser() {
-      if (!this.token) return
-
-      try {
-        const res = await fetch('/api/me', {
-          headers: {
-            Authorization: `Bearer ${this.token}`
-          }
-        })
-
-        if (!res.ok) throw new Error('فشل جلب بيانات المستخدم')
-
-        const data = await res.json()
-        this.user = data
-        this.role = data.role || null 
-      } catch (err) {
-        console.error('fetchUser error:', err)
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error) {
+        console.error('fetchUser error:', error.message)
         this.user = null
+        return null
+      }
+      this.user = user
+      return user
+    },
+
+    async fetchProfile() {
+      if (!this.user) await this.fetchUser()
+      if (!this.user) return null
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', this.user.id)
+        .single()
+
+      if (error) {
+        console.error('fetchProfile error:', error.message)
+        this.profile = null
+        return null
+      }
+
+      this.profile = data
+      this.role = data?.role || 'user'
+      return data
+    },
+
+    async initAuth() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          this.user = session.user
+          await this.fetchProfile()
+        } else {
+          this.user = null
+          this.profile = null
+          this.role = null
+        }
+      } catch (err) {
+        console.error('initAuth error:', err.message)
+        this.user = null
+        this.profile = null
         this.role = null
+      } finally {
+        this.isAuthReady = true
       }
     },
 
-    async setToken(token) {
-      this.token = token
-      localStorage.setItem('token', token)
-      await this.fetchUser() 
-    },
-
-    async loadToken() {
-      this.token = localStorage.getItem('token')
-      if (this.token) {
-        await this.fetchUser()
-      }
-    },
-
-    logout() {
-      this.token = null
-      this.role = null
+    async logout() {
+      await supabase.auth.signOut()
       this.user = null
-      localStorage.removeItem('token')
+      this.profile = null
+      this.role = null
     }
   }
 })
-

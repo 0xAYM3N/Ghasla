@@ -48,7 +48,7 @@ hosted in the **[0x Community](https://discord.gg/E8avEhkh)** in Discord.
 
 ## 🛠️ Technologies Used
 - **Frontend**: Vue.js, PureCSS  
-- **Backend**: MariaDB  
+- **Backend**: Supabase 
 
 ## 📥 Installation & Usage
 ```bash

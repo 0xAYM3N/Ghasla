@@ -2,8 +2,7 @@
 import './Account.css'
 import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
-import axios from 'axios'
-import { jwtDecode } from 'jwt-decode'
+import { supabase } from '../../../lib/supabaseClient'
 
 const userStore = useUserStore()
 
@@ -17,35 +16,19 @@ const editMode = reactive({ email: false, password: false })
 const fieldMessages = reactive({ email: '', password: '' })
 const globalMessage = ref('')
 
-const getUserIdFromToken = () => {
-  if (!userStore.token) return null
-  try {
-    const decoded = jwtDecode(userStore.token)
-    return decoded?.id || decoded?.userId || decoded?.sub || null
-  } catch (err) {
-    console.error('خطأ في فك التوكن:', err)
-    return null
-  }
-}
-
 const fetchUserData = async () => {
-  const userId = getUserIdFromToken()
-  if (!userId) {
-    console.error('لا يوجد userId في التوكن')
-    return
-  }
-
   try {
-    const res = await axios.get(`http://localhost:3000/users/${userId}`, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
+    const { data, error } = await supabase.auth.getUser()
+    if (error) throw error
 
-    const user = res.data
-    form.email = user.email
-    Object.assign(originalValues, form)
-    userStore.user = user
+    const user = data.user
+    if (user) {
+      form.email = user.email
+      Object.assign(originalValues, { email: form.email })
+      userStore.user = user
+    }
   } catch (err) {
-    console.error('خطأ في تحميل البيانات:', err)
+    console.error('خطأ عند جلب بيانات المستخدم:', err.message)
   }
 }
 
@@ -72,53 +55,54 @@ const handleSave = async (field) => {
   }
 
   if (!value) {
-    fieldMessages[field] = `${field} لا يمكن أن يكون فارغ`
-    return
-  }
-
-  if (field === 'email') {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      fieldMessages.email = 'الرجاء إدخال بريد إلكتروني صالح'
-      return
-    }
-
-    try {
-      const res = await axios.get(`http://localhost:3000/users?email=${value}`)
-      const existingUser = res.data.find((u) => u.email === value && u.id !== userStore.user.id)
-      if (existingUser) {
-        fieldMessages.email = 'البريد الإلكتروني مستخدم مسبقًا'
-        return
-      }
-    } catch (err) {
-      console.error('خطأ في التحقق من البريد:', err)
-    }
-  }
-
-  if (field === 'password' && value.length < 6) {
-    fieldMessages.password = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
+    fieldMessages[field] = `${field === 'email' ? 'البريد الإلكتروني' : 'كلمة المرور'} لا يمكن أن يكون فارغ`
     return
   }
 
   try {
-    const body = field === 'password' ? { password: value } : { [field]: value }
+    if (field === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(value)) {
+        fieldMessages.email = "الرجاء إدخال بريد إلكتروني صالح"
+        return
+      }
 
-    await axios.patch(`http://localhost:3000/users/${userStore.user.id}`, body, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
+      const { error } = await supabase.auth.updateUser({ email: value })
+      if (error) {
+        if (error.message.includes("already registered")) {
+          fieldMessages.email = "البريد الإلكتروني مسجّل مسبقًا"
+        } else {
+          fieldMessages.email = "حدث خطأ أثناء تحديث البريد الإلكتروني"
+        }
+        return
+      }
 
-    if (field !== 'password') {
-      originalValues[field] = value
-      userStore.user = { ...userStore.user, [field]: value }
-    } else {
+      originalValues.email = value
+      userStore.user = { ...userStore.user, email: value }
+      globalMessage.value = 'تم تحديث البريد الإلكتروني'
+    }
+
+    if (field === 'password') {
+      if (value.length < 6) {
+        fieldMessages.password = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
+        return
+      }
+
+      const { error } = await supabase.auth.updateUser({ password: value })
+      if (error) {
+        fieldMessages.password = "حدث خطأ أثناء تحديث كلمة المرور"
+        return
+      }
+
       form.password = ''
+      globalMessage.value = 'تم تحديث كلمة المرور بنجاح'
     }
 
     editMode[field] = false
     fieldMessages[field] = ''
-    globalMessage.value = 'تم التحديث بنجاح'
-    setTimeout(() => (globalMessage.value = ''), 3000)
+    setTimeout(() => (globalMessage.value = ''), 4000)
   } catch (err) {
-    console.error(err)
+    console.error('خطأ عند التحديث:', err.message)
     fieldMessages[field] = 'حدث خطأ أثناء التحديث'
   }
 }
@@ -146,7 +130,12 @@ const handleSave = async (field) => {
     <div class="form-row">
       <label>تغيير كلمة المرور</label>
       <div class="input-group">
-        <input type="password" v-model="form.password" :disabled="!editMode.password" placeholder="كلمة المرور الجديدة" />
+        <input
+          type="password"
+          v-model="form.password"
+          :disabled="!editMode.password"
+          placeholder="كلمة المرور الجديدة"
+        />
         <button v-if="!editMode.password" class="edit-btn" @click="enableEdit('password')">تعديل</button>
         <button v-else class="save-btn" @click="handleSave('password')">حفظ</button>
         <button v-if="editMode.password" class="cancel-btn" @click="cancelEdit('password')">إلغاء</button>
@@ -155,4 +144,3 @@ const handleSave = async (field) => {
     </div>
   </div>
 </template>
-

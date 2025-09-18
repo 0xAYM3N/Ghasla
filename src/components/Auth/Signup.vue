@@ -3,7 +3,7 @@ import './style.css'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/userStore'
-import axios from 'axios'
+import { supabase } from '../../lib/supabaseClient'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -43,31 +43,37 @@ async function submitSignupForm() {
   message.value = ''
 
   try {
-    const res = await axios.post('http://localhost:3000/register', {
+    const { data, error } = await supabase.auth.signUp({
       email: form.value.email,
-      password: form.value.password,
-      balance: 0,
-      transactions: [],
-      role: 'user'
+      password: form.value.password
     })
 
-    userStore.setToken(res.data.accessToken)
-    if (res.data.user) {
-      userStore.user = res.data.user
-      userStore.role = res.data.user.role || 'user'
+    if (error) throw error
+
+    const user = data?.user
+    if (!user) {
+      message.value = 'تم إنشاء الحساب، تحقق من بريدك لتفعيل الحساب'
+      return
     }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert([
+        {
+          id: user.id,
+          role: 'user',
+          balance: 0,
+        }
+      ])
+
+    if (profileError) throw profileError
+
+    await userStore.initAuth()
 
     router.push('/dashboard')
   } catch (error) {
     console.error(error)
-
-    if (error.response?.data === 'Email already exists') {
-      message.value = 'البريد الإلكتروني مستخدم بالفعل'
-    } else if (error.response?.status === 500) {
-      message.value = 'خطأ في الخادم، حاول لاحقاً'
-    } else {
-      message.value = 'فشل إنشاء الحساب، تحقق من اتصالك'
-    }
+    message.value = error.message || 'فشل إنشاء الحساب، تحقق من اتصالك'
   } finally {
     isSubmitting.value = false
   }
@@ -135,4 +141,3 @@ async function submitSignupForm() {
     </div>
   </div>
 </template>
-

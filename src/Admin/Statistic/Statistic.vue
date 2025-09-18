@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue"
-import axios from "axios"
+import { supabase } from "../../lib/supabaseClient"
 import "./Statistic.css"
 
 const usersCount = ref(0)
@@ -11,29 +11,36 @@ const error = ref(null)
 
 async function loadStats() {
   try {
-    const [resUsers, resBookings] = await Promise.all([
-      axios.get("http://localhost:3000/users"),
-      axios.get("http://localhost:3000/bookings")
-    ])
+    error.value = null
+    loading.value = true
 
-    usersCount.value = resUsers.data.length
-    bookingsCount.value = resBookings.data.length
+    const { count: users, error: usersError } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
 
-    totalRevenue.value = resBookings.data
+    if (usersError) throw usersError
+    usersCount.value = users || 0
+
+    const { data: bookings, error: bookingsError } = await supabase
+      .from("bookings")
+      .select("id, price, status")
+
+    if (bookingsError) throw bookingsError
+    bookingsCount.value = bookings.length
+
+    totalRevenue.value = bookings
       .filter(b => b.status === "مؤكد")
-      .reduce((sum, b) => sum + b.price, 0)
+      .reduce((sum, b) => sum + (b.price || 0), 0)
 
   } catch (err) {
-    console.error(err)
+    console.error("❌ Error loading stats:", err.message)
     error.value = "حدث خطأ أثناء تحميل الإحصائيات"
   } finally {
     loading.value = false
   }
 }
 
-onMounted(() => {
-  loadStats()
-})
+onMounted(loadStats)
 </script>
 
 <template>
@@ -53,7 +60,7 @@ onMounted(() => {
       </div>
       <div class="card">
         <h2>إجمالي الأرباح</h2>
-        <p>{{ totalRevenue }}$</p> 
+        <p>{{ totalRevenue.toLocaleString() }}$</p> 
       </div>
     </div>
   </div>

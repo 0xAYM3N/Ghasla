@@ -1,86 +1,77 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '../../../stores/userStore'
-import axios from 'axios'
+import { supabase } from '../../../lib/supabaseClient'
 import './Bookings.css'
 
 const showPopup = ref(false)
 const popupMessage = ref("")
-const bookingToDelete = ref(null)
+const bookingToCancel = ref(null)
 const bookings = ref([])
 
 const userStore = useUserStore()
 
 function openPopup(msg, id) {
   popupMessage.value = msg
-  bookingToDelete.value = id
+  bookingToCancel.value = id
   showPopup.value = true
 }
 
 function closePopup() {
   showPopup.value = false
-  bookingToDelete.value = null
-}
-
-function getUserEmailFromToken(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload.email
-  } catch {
-    return null
-  }
+  bookingToCancel.value = null
 }
 
 async function loadBookings() {
-  if (!userStore.token) return
-
+  if (!userStore.user) return
   try {
-    const resUsers = await axios.get('http://localhost:3000/users', {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('user_id', userStore.user.id)
+      .order('created_at', { ascending: false })
 
-    const email = getUserEmailFromToken(userStore.token)
-    const user = resUsers.data.find(u => u.email === email)
-
-    if (!user) return
-
-    const resBookings = await axios.get(`http://localhost:3000/bookings?userId=${user.id}`, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-
-    bookings.value = resBookings.data.reverse()
+    if (error) throw error
+    bookings.value = data || []
   } catch (error) {
-    console.error("❌ خطأ أثناء جلب الحجوزات:", error)
+    console.error("❌ خطأ أثناء جلب الحجوزات:", error.message)
   }
 }
 
-async function deleteBooking(id) {
-  openPopup("هل أنت متأكد أنك تريد حذف هذا الحجز؟", id)
+function cancelBooking(id) {
+  openPopup("هل أنت متأكد أنك تريد إلغاء هذا الحجز؟", id)
 }
 
-async function confirmDelete() {
-  if (!bookingToDelete.value) return
+async function confirmCancel() {
+  if (!bookingToCancel.value) return
+
   try {
-    await axios.delete(`http://localhost:3000/bookings/${bookingToDelete.value}`, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-    bookings.value = bookings.value.filter(b => b.id !== bookingToDelete.value)
+    const { error: updateError } = await supabase
+      .from('bookings')
+      .update({ status: 'ملغى' })
+      .eq('id', bookingToCancel.value)
+
+    if (updateError) throw updateError
+
+    bookings.value = bookings.value.map(b =>
+      b.id === bookingToCancel.value ? { ...b, status: 'ملغى' } : b
+    )
   } catch (error) {
-    console.error("❌ خطأ أثناء حذف الحجز", error)
+    console.error("❌ خطأ أثناء إلغاء الحجز:", error.message)
   }
-  bookingToDelete.value = null
+
   closePopup()
 }
 
 function formatDateTime(unix) {
   if (!unix) return { date: "-", time: "-" }
   const d = new Date(unix * 1000)
-  const date = d.toLocaleDateString("en", {
+  const date = d.toLocaleDateString("ar", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit"
   })
-  const time = d.toLocaleTimeString("en", {
+  const time = d.toLocaleTimeString("ar", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false
@@ -88,9 +79,7 @@ function formatDateTime(unix) {
   return { date, time }
 }
 
-onMounted(() => {
-  loadBookings()
-})
+onMounted(loadBookings)
 </script>
 
 <template>
@@ -101,7 +90,12 @@ onMounted(() => {
     </div>
 
     <div class="bookings-cards">
-      <div v-for="booking in bookings" :key="booking.id" class="booking-card">
+      <div 
+        v-for="booking in bookings" 
+        :key="booking.id" 
+        class="booking-card"
+        :class="{ 'disabled-card': booking.status === 'ملغى' }"
+      >
         <div class="card-row">
           <span class="label">الخدمة:</span>
           <span>{{ booking.type }}</span>
@@ -130,8 +124,9 @@ onMounted(() => {
             {{ booking.status }}
           </span>
         </div>
-        <div class="card-actions">
-          <button class="delete-btn" @click="deleteBooking(booking.id)">حذف</button>
+
+        <div class="card-actions" v-if="booking.status === 'قيد الانتظار'">
+          <button class="cancel-btn" @click="cancelBooking(booking.id)">إلغاء</button>
         </div>
       </div>
     </div>
@@ -141,10 +136,11 @@ onMounted(() => {
       <div class="popup-content">
         <h3>{{ popupMessage }}</h3>
         <div class="buttons">
-          <button class="confirm-delete" @click="confirmDelete">تأكيد الحذف</button>
+          <button class="confirm-cancel" @click="confirmCancel">تأكيد الإلغاء</button>
           <button class="close-popup" @click="closePopup">إغلاق</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+

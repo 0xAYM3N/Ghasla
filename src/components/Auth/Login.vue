@@ -3,7 +3,7 @@ import './style.css'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/userStore'
-import axios from 'axios'
+import { supabase } from '../../lib/supabaseClient'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -25,35 +25,31 @@ async function submitLoginForm() {
   message.value = ''
 
   try {
-    const response = await axios.post('http://localhost:3000/login', {
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: form.value.email,
       password: form.value.password
     })
 
-    // حفظ التوكن
-    await userStore.setToken(response.data.accessToken)
+    if (error) throw error
 
-    // حفظ بيانات المستخدم والدور
-    if (response.data.user) {
-      userStore.user = response.data.user
-      userStore.role = response.data.user.role || null
+    if (!data?.session) {
+      message.value = 'تم تسجيل الدخول ولكن الحساب يحتاج تفعيل عبر البريد. تحقق من صندوق البريد الخاص بك.'
+      isSubmitting.value = false
+      return
     }
 
-    // التوجيه بناءً على الدور
-    if (userStore.role === 'admin') {
+    await userStore.initAuth()
+
+    const role = userStore.role || userStore.profile?.role || null
+
+    if (role === 'admin') {
       router.push('/admin')
     } else {
       router.push('/dashboard')
     }
-  } catch (error) {
-    console.error(error)
-    if (error.response?.status === 400) {
-      message.value = 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
-    } else if (error.response?.status === 500) {
-      message.value = 'خطأ في الخادم، حاول لاحقاً'
-    } else {
-      message.value = 'فشل تسجيل الدخول، تحقق من اتصالك'
-    }
+  } catch (err) {
+    console.error('Login error:', err)
+    message.value = err?.message || 'فشل تسجيل الدخول، تحقق من البيانات أو اتصالك'
   } finally {
     isSubmitting.value = false
   }
@@ -110,4 +106,3 @@ async function submitLoginForm() {
     </div>
   </div>
 </template>
-

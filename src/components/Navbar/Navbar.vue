@@ -1,10 +1,15 @@
 <script setup>
 import './Navbar.css'
+import { onMounted } from 'vue'
 import { useUserStore } from '../../stores/userStore'
 
 const userStore = useUserStore()
 
-userStore.loadToken()
+onMounted(async () => {
+  if (!userStore.isAuthReady) {
+    await userStore.initAuth()
+  }
+})
 </script>
 
 <template>
@@ -24,19 +29,20 @@ userStore.loadToken()
       </div>
 
       <div class="btn">
-        <router-link v-if="!userStore.isLoggedIn" to="/login">
-          تسجيل الدخول
-        </router-link>
+        <template v-if="userStore.isAuthReady">
+          <router-link v-if="!userStore.isLoggedIn" to="/login">
+            تسجيل الدخول
+          </router-link>
 
-        <router-link
-          v-else
-          to="/dashboard"
-          class="dashboard-btn"
-        >
-          لوحة التحكم
-        </router-link>
+          <router-link
+            v-else
+            to="/dashboard"
+            class="dashboard-btn"
+          >
+            لوحة التحكم
+          </router-link>
+        </template>
       </div>
     </div>
   </div>
 </template>
-

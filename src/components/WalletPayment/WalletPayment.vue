@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useUserStore } from '../../stores/userStore'
-import axios from 'axios'
+import { supabase } from '../../lib/supabaseClient'
 import './WalletPayment.css'
 
 const props = defineProps({
@@ -16,31 +16,21 @@ const showConfirmPopup = ref(false)
 const isProcessing = ref(false)
 const errorMessage = ref("")
 
-function getUserEmailFromToken(token) {
-  try {
-    return JSON.parse(atob(token.split('.')[1])).email
-  } catch {
-    return null
-  }
-}
-
 async function fetchUserAndBalance() {
-  if (!userStore.token) return
+  if (!userStore.user) return
   try {
-    const email = getUserEmailFromToken(userStore.token)
-    if (!email) return
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, balance')
+      .eq('id', userStore.user.id)
+      .single()
 
-    const res = await axios.get('http://localhost:3000/users', {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-    const user = res.data.find(u => u.email === email)
-    if (!user) return
-
-    currentUser.value = user
-    balance.value = parseFloat(user.balance || 0)
+    if (error) throw error
+    currentUser.value = data
+    balance.value = parseFloat(data.balance || 0)
   } catch (err) {
     errorMessage.value = "حدث خطأ أثناء جلب بيانات الرصيد"
-    console.error("fetchUserAndBalance error:", err.response?.data || err.message || err)
+    console.error("fetchUserAndBalance error:", err.message)
   }
 }
 
@@ -65,42 +55,40 @@ async function payWithWallet() {
 
   isProcessing.value = true
   try {
-    const now = new Date().toISOString()
     const newBalance = parseFloat((balance.value - props.amount).toFixed(2))
 
-    const newTransaction = {
-      id: Date.now(),
-      type: "خصم",
-      amount: props.amount,
-      createdAt: now,
-      notify: `تم خصم ${props.amount}$`
-    }
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ balance: newBalance })
+      .eq('id', currentUser.value.id)
 
-    const updatedTransactions = [...(currentUser.value.transactions || []), newTransaction]
+    if (updateError) throw updateError
 
-    await axios.patch(
-      `http://localhost:3000/users/${currentUser.value.id}`,
-      {
-        balance: newBalance,
-        transactions: updatedTransactions
-      },
-      { headers: { Authorization: `Bearer ${userStore.token}` } }
-    )
+    const { error: insertError } = await supabase
+      .from('transactions')
+      .insert({
+        user_id: currentUser.value.id,
+        type: "خصم",
+        amount: props.amount,
+        notify: `تم خصم ${props.amount}$`
+      })
+
+    if (insertError) throw insertError
 
     balance.value = newBalance
-    currentUser.value.transactions = updatedTransactions
     showConfirmPopup.value = false
     isProcessing.value = false
 
     props.onSuccess()
   } catch (err) {
     errorMessage.value = "حصل خطأ أثناء الدفع، حاول مرة ثانية."
-    console.error("payWithWallet error:", err.response?.data || err.response?.status || err.message || err)
+    console.error("payWithWallet error:", err.message)
     showConfirmPopup.value = false
     isProcessing.value = false
   }
 }
 </script>
+
 
 <template>
   <div class="wallet-payment">

@@ -1,150 +1,113 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { supabase } from '../../../lib/supabaseClient'
 import { useUserStore } from '../../../stores/userStore'
 import './Notifications.css'
 
 const userStore = useUserStore()
 const notifications = ref([])
-
-function getUserEmailFromToken(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload.email
-  } catch {
-    return null
-  }
-}
+const isLoading = ref(false)
+const errorMessage = ref(null)
 
 async function loadNotifications() {
-  if (!userStore.token) return
-
+  if (!userStore.user) return
   try {
-    const email = getUserEmailFromToken(userStore.token)
-    if (!email) return
+    isLoading.value = true
+    errorMessage.value = null
 
-    const usersResponse = await axios.get('http://localhost:3000/users', {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-    const currentUser = usersResponse.data.find(u => u.email === email)
-    if (!currentUser) return
+    const { data: tx, error: txError } = await supabase
+      .from('transactions')
+      .select('id, notify, created_at')
+      .eq('user_id', userStore.user.id)
+      .not('notify', 'is', null)
 
-    const walletNotifications = (currentUser.transactions || [])
-      .filter(t => t.notify)
-      .map(t => ({
-        id: `wallet-${t.id}`,
-        message: t.notify,
-        date: t.date || t.createdAt
-      }))
+    if (txError) throw txError
 
-    const bookingsResponse = await axios.get(`http://localhost:3000/bookings?userId=${currentUser.id}`, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-    const bookingNotifications = bookingsResponse.data
-      .filter(b => b.notify)
-      .map(b => ({
-        id: `booking-${b.id}`,
-        message: b.notify,
-        date: b.createdAt
-      }))
+    const { data: bk, error: bkError } = await supabase
+      .from('bookings')
+      .select('id, notify, created_at')
+      .eq('user_id', userStore.user.id)
+      .not('notify', 'is', null)
 
-    notifications.value = [...walletNotifications, ...bookingNotifications]
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
+    if (bkError) throw bkError
 
-  } catch (error) {
-    console.error('❌ خطأ أثناء جلب الإشعارات:', error)
+    notifications.value = [
+      ...(tx || []).map(n => ({ ...n, source: 'transaction' })),
+      ...(bk || []).map(n => ({ ...n, source: 'booking' }))
+    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+
+  } catch (err) {
+    console.error('❌ خطأ في جلب الإشعارات:', err.message)
+    errorMessage.value = 'فشل في جلب الإشعارات'
+  } finally {
+    isLoading.value = false
   }
 }
 
-async function deleteNotification(id) {
+async function deleteNotification(n) {
   try {
-    const email = getUserEmailFromToken(userStore.token)
-    if (!email) return
-
-    const usersResponse = await axios.get('http://localhost:3000/users', {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-    const currentUser = usersResponse.data.find(u => u.email === email)
-    if (!currentUser) return
-
-    if (id.startsWith('wallet-')) {
-      const transactionId = parseInt(id.replace('wallet-', ''))
-      const updatedTransactions = (currentUser.transactions || []).map(t => {
-        if (t.id === transactionId) t.notify = null
-        return t
-      })
-      await axios.patch(`http://localhost:3000/users/${currentUser.id}`, {
-        transactions: updatedTransactions
-      }, {
-        headers: { Authorization: `Bearer ${userStore.token}` }
-      })
-    } else if (id.startsWith('booking-')) {
-      const bookingId = id.replace('booking-', '')
-      await axios.patch(`http://localhost:3000/bookings/${bookingId}`, { notify: null }, {
-        headers: { Authorization: `Bearer ${userStore.token}` }
-      })
+    if (n.source === 'transaction') {
+      const { error } = await supabase
+        .from('transactions')
+        .update({ notify: null })
+        .eq('id', n.id)
+      if (error) throw error
+    } else if (n.source === 'booking') {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ notify: null })
+        .eq('id', n.id)
+      if (error) throw error
     }
 
-    notifications.value = notifications.value.filter(n => n.id !== id)
-  } catch (error) {
-    console.error('❌ خطأ أثناء حذف الإشعار:', error)
+    notifications.value = notifications.value.filter(x => !(x.id === n.id && x.source === n.source))
+  } catch (err) {
+    console.error('خطأ أثناء حذف الإشعار:', err.message)
   }
 }
 
 async function deleteAll() {
   try {
-    const email = getUserEmailFromToken(userStore.token)
-    if (!email) return
+    await supabase
+      .from('transactions')
+      .update({ notify: null })
+      .eq('user_id', userStore.user.id)
 
-    const usersResponse = await axios.get('http://localhost:3000/users', {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-    const currentUser = usersResponse.data.find(u => u.email === email)
-    if (!currentUser) return
-
-    const updatedTransactions = (currentUser.transactions || []).map(t => {
-      t.notify = null
-      return t
-    })
-    await axios.patch(`http://localhost:3000/users/${currentUser.id}`, {
-      transactions: updatedTransactions
-    }, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-
-    const bookingsResponse = await axios.get(`http://localhost:3000/bookings?userId=${currentUser.id}`, {
-      headers: { Authorization: `Bearer ${userStore.token}` }
-    })
-    for (const booking of bookingsResponse.data) {
-      await axios.patch(`http://localhost:3000/bookings/${booking.id}`, { notify: null }, {
-        headers: { Authorization: `Bearer ${userStore.token}` }
-      })
-    }
+    await supabase
+      .from('bookings')
+      .update({ notify: null })
+      .eq('user_id', userStore.user.id)
 
     notifications.value = []
-  } catch (error) {
-    console.error('❌ خطأ أثناء حذف جميع الإشعارات:', error)
+  } catch (err) {
+    console.error('❌ خطأ أثناء حذف جميع الإشعارات:', err.message)
   }
 }
 
-onMounted(() => loadNotifications())
+onMounted(loadNotifications)
 </script>
 
 <template>
   <div class="notifications-page">
     <div class="header">
       <h2>الإشعارات</h2>
-      <button v-if="notifications.length" @click="deleteAll">حذف الكل</button>
+      <button v-if="notifications.length" @click="deleteAll" class="delete-all">
+        حذف الكل
+      </button>
     </div>
 
-    <ul>
-      <li v-for="n in notifications" :key="n.id">
-        <span>{{ n.message }}</span>
-        <button @click="deleteNotification(n.id)">حذف</button>
+    <p v-if="isLoading">⏳ جاري التحميل...</p>
+    <p v-if="errorMessage">{{ errorMessage }}</p>
+
+    <ul v-if="!isLoading && notifications.length">
+      <li v-for="n in notifications" :key="n.source + '-' + n.id">
+        <span>{{ n.notify }}</span>
+        <button @click="deleteNotification(n)">حذف</button>
       </li>
     </ul>
 
-    <p v-if="notifications.length === 0">لا توجد إشعارات حالياً</p>
+    <p v-if="!isLoading && notifications.length === 0">
+      لا توجد إشعارات حالياً
+    </p>
   </div>
 </template>
-

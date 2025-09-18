@@ -35,6 +35,11 @@
   gap: 30px;
 }
 
+.booking-card.disabled-card {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 .bookings-page .bookings-cards .booking-card {
   display: flex;
   flex-direction: column;
@@ -65,7 +70,7 @@
   width: 100%;
 }
 
-.bookings-page .bookings-cards .card-actions .delete-btn {
+.bookings-page .bookings-cards .card-actions .cancel-btn {
   background-color: var(--red);
   color: var(--white);
   border: none;
@@ -76,7 +81,7 @@
   transition: 0.2s;
 }
 
-.bookings-page .bookings-cards .card-actions .delete-btn:hover {
+.bookings-page .bookings-cards .card-actions .cancel-btn:hover {
   opacity: .8;
 }
 
@@ -151,12 +156,12 @@
   background-color: var(--blue); 
 }
 
-.bookings-page .popup-content .buttons .confirm-delete { 
+.bookings-page .popup-content .buttons .confirm-cancel { 
   background-color: var(--red); 
 }
 
 .bookings-page .popup-content .buttons .close-popup:hover,
-.bookings-page .popup-content .buttons .confirm-delete:hover { 
+.bookings-page .popup-content .buttons .confirm-cancel:hover { 
   opacity: .7; 
 }
 
