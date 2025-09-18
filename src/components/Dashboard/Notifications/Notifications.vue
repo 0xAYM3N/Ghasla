@@ -15,17 +15,41 @@ async function loadNotifications() {
     isLoading.value = true
     errorMessage.value = null
 
-    const { data, error } = await supabase
-      .from("notifications")
-      .select("*")
-      .order("created_at", { ascending: false })
+    const { data: txs, error: txError } = await supabase
+      .from("transactions")
+      .select("id, notify, created_at")
+      .eq("user_id", userStore.user.id)
+      .not("notify", "is", null)
 
-    if (error) throw error
+    if (txError) throw txError
 
-    notifications.value = data.map((n) => ({
-      ...n,
-      uid: `${n.source}-${n.id}`,
+    const walletNotifications = (txs || []).map((t) => ({
+      id: t.id,
+      message: t.notify,
+      date: t.created_at,
+      source: "transaction",
+      uid: `transaction-${t.id}`,
     }))
+
+    const { data: bookings, error: bookingError } = await supabase
+      .from("bookings")
+      .select("id, notify, created_at")
+      .eq("user_id", userStore.user.id)
+      .not("notify", "is", null)
+
+    if (bookingError) throw bookingError
+
+    const bookingNotifications = (bookings || []).map((b) => ({
+      id: b.id,
+      message: b.notify,
+      date: b.created_at,
+      source: "booking",
+      uid: `booking-${b.id}`,
+    }))
+
+    notifications.value = [...walletNotifications, ...bookingNotifications].sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    )
   } catch (err) {
     console.error("❌ خطأ أثناء جلب الإشعارات:", err.message)
     errorMessage.value = "تعذر جلب الإشعارات. حاول لاحقاً."
