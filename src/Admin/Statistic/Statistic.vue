@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue"
-import { supabase } from "../../../lib/supabaseClient"
+import { supabase } from "../../lib/supabaseClient"
 import "./Statistic.css"
 
 const usersCount = ref(0)
