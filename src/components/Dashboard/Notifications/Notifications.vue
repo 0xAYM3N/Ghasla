@@ -44,11 +44,6 @@ async function loadNotifications() {
   }
 }
 
-function formatDateTime(date) {
-  const d = new Date(date)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
-}
-
 async function deleteNotification(n) {
   try {
     if (n.source === 'transaction') {
@@ -104,24 +99,12 @@ onMounted(loadNotifications)
     <p v-if="isLoading">⏳ جاري التحميل...</p>
     <p v-if="errorMessage">{{ errorMessage }}</p>
 
-    <table v-if="!isLoading && notifications.length" class="notifications-table">
-      <thead>
-        <tr>
-          <th>المصدر</th>
-          <th>الإشعار</th>
-          <th>التاريخ والوقت</th>
-          <th>إجراء</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="n in notifications" :key="n.source + '-' + n.id">
-          <td>{{ n.source === 'transaction' ? 'معاملة' : 'حجز' }}</td>
-          <td>{{ n.notify }}</td>
-          <td>{{ formatDateTime(n.created_at) }}</td>
-          <td><button @click="deleteNotification(n)">حذف</button></td>
-        </tr>
-      </tbody>
-    </table>
+    <ul v-if="!isLoading && notifications.length">
+      <li v-for="n in notifications" :key="n.source + '-' + n.id">
+        <span>{{ n.notify }}</span>
+        <button @click="deleteNotification(n)">حذف</button>
+      </li>
+    </ul>
 
     <p v-if="!isLoading && notifications.length === 0">
       لا توجد إشعارات حالياً
