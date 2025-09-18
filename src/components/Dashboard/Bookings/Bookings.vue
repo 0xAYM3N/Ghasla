@@ -54,7 +54,6 @@ async function confirmCancel() {
       .from('bookings')
       .update({ status: 'ملغى' })
       .eq('id', bookingToCancel.value)
-      .eq('status', 'قيد الانتظار')
 
     if (updateError) throw updateError
 
@@ -146,7 +145,7 @@ onMounted(loadBookings)
             @click="confirmCancel" 
             :disabled="loadingCancel"
           >
-            {{ loadingCancel ? "جاري التنفيذ..." : "تأكيد الإلغاء" }}
+            {{ loadingCancel ? "⏳ جاري التنفيذ..." : "تأكيد الإلغاء" }}
           </button>
           <button class="close-popup" @click="closePopup">إغلاق</button>
         </div>
