@@ -1,8 +1,7 @@
 <script setup>
-import { ref, watch } from 'vue'
-import { useUserStore } from '../../../stores/userStore'
-import { supabase } from '../../../lib/supabaseClient'
-import './Notifications.css'
+import { ref, watch } from "vue"
+import { useUserStore } from "../../../stores/userStore"
+import { supabase } from "../../../lib/supabaseClient"
 
 const userStore = useUserStore()
 const notifications = ref([])
@@ -16,84 +15,62 @@ async function loadNotifications() {
     isLoading.value = true
     errorMessage.value = null
 
-    const { data: txs, error: txError } = await supabase
-      .from('transactions')
-      .select('id, notify, created_at')
-      .eq('user_id', userStore.user.id)
-      .not('notify', 'is', null)
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("*")
+      .order("created_at", { ascending: false })
 
-    if (txError) throw txError
+    if (error) throw error
 
-    const walletNotifications = (txs || []).map(t => ({
-      id: `wallet-${t.id}`,
-      message: t.notify,
-      date: t.created_at
+    notifications.value = data.map((n) => ({
+      ...n,
+      uid: `${n.source}-${n.id}`,
     }))
-
-    const { data: bookings, error: bookingError } = await supabase
-      .from('bookings')
-      .select('id, notify, created_at')
-      .eq('user_id', userStore.user.id)
-      .not('notify', 'is', null)
-
-    if (bookingError) throw bookingError
-
-    const bookingNotifications = (bookings || []).map(b => ({
-      id: `booking-${b.id}`,
-      message: b.notify,
-      date: b.created_at
-    }))
-
-    notifications.value = [...walletNotifications, ...bookingNotifications]
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-
-  } catch (error) {
-    console.error('❌ خطأ أثناء جلب الإشعارات:', error.message)
-    errorMessage.value = 'تعذر جلب الإشعارات. حاول لاحقاً.'
+  } catch (err) {
+    console.error("❌ خطأ أثناء جلب الإشعارات:", err.message)
+    errorMessage.value = "تعذر جلب الإشعارات. حاول لاحقاً."
   } finally {
     isLoading.value = false
   }
 }
 
-async function deleteNotification(id) {
+async function deleteNotification(n) {
   try {
-    if (id.startsWith('wallet-')) {
-      const txId = parseInt(id.replace('wallet-', ''))
+    if (n.source === "transaction") {
       const { error } = await supabase
-        .from('transactions')
+        .from("transactions")
         .update({ notify: null })
-        .eq('id', txId)
+        .eq("id", n.id)
       if (error) throw error
-    } else if (id.startsWith('booking-')) {
-      const bookingId = id.replace('booking-', '')
+    } else if (n.source === "booking") {
       const { error } = await supabase
-        .from('bookings')
+        .from("bookings")
         .update({ notify: null })
-        .eq('id', bookingId)
+        .eq("id", n.id)
       if (error) throw error
     }
 
-    notifications.value = notifications.value.filter(n => n.id !== id)
-  } catch (error) {
-    console.error('❌ خطأ أثناء حذف الإشعار:', error.message)
+    notifications.value = notifications.value.filter((x) => x.uid !== n.uid)
+  } catch (err) {
+    console.error("❌ خطأ أثناء حذف الإشعار:", err.message)
   }
 }
 
 async function deleteAll() {
   try {
     await supabase
-      .from('transactions')
+      .from("transactions")
       .update({ notify: null })
-      .eq('user_id', userStore.user.id)
+      .eq("user_id", userStore.user.id)
 
     await supabase
-      .from('bookings')
+      .from("bookings")
       .update({ notify: null })
-      .eq('user_id', userStore.user.id)
+      .eq("user_id", userStore.user.id)
 
     notifications.value = []
-  } catch (error) {
-    console.error('❌ خطأ أثناء حذف جميع الإشعارات:', error.message)
+  } catch (err) {
+    console.error("❌ خطأ أثناء حذف جميع الإشعارات:", err.message)
   }
 }
 
@@ -112,19 +89,23 @@ watch(
   <div class="notifications-page">
     <div class="header">
       <h2>الإشعارات</h2>
-      <button v-if="notifications.length" @click="deleteAll" class="delete-all">
+      <button
+        v-if="notifications.length"
+        @click="deleteAll"
+        class="delete-all"
+      >
         حذف الكل
       </button>
     </div>
 
     <p v-if="isLoading">⏳ جاري التحميل...</p>
-
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
     <ul v-if="!isLoading && notifications.length">
-      <li v-for="n in notifications" :key="n.id">
+      <li v-for="n in notifications" :key="n.uid">
         <span>{{ n.message }}</span>
-        <button @click="deleteNotification(n.id)">حذف</button>
+        <small>({{ n.source }})</small>
+        <button @click="deleteNotification(n)">حذف</button>
       </li>
     </ul>
 
