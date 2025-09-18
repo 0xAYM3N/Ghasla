@@ -15,86 +15,19 @@ async function loadNotifications() {
     isLoading.value = true
     errorMessage.value = null
 
-    const { data: txs, error: txError } = await supabase
-      .from("transactions")
-      .select("id, notify, created_at")
-      .eq("user_id", userStore.user.id)
-      .not("notify", "is", null)
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("*")
+      .order("created_at", { ascending: false })
 
-    if (txError) throw txError
+    if (error) throw error
 
-    const walletNotifications = (txs || []).map((t) => ({
-      id: t.id,
-      message: t.notify,
-      date: t.created_at,
-      source: "transaction",
-      uid: `transaction-${t.id}`,
-    }))
-
-    const { data: bookings, error: bookingError } = await supabase
-      .from("bookings")
-      .select("id, notify, created_at")
-      .eq("user_id", userStore.user.id)
-      .not("notify", "is", null)
-
-    if (bookingError) throw bookingError
-
-    const bookingNotifications = (bookings || []).map((b) => ({
-      id: b.id,
-      message: b.notify,
-      date: b.created_at,
-      source: "booking",
-      uid: `booking-${b.id}`,
-    }))
-
-    notifications.value = [...walletNotifications, ...bookingNotifications].sort(
-      (a, b) => new Date(b.date) - new Date(a.date)
-    )
+    notifications.value = data
   } catch (err) {
     console.error("❌ خطأ أثناء جلب الإشعارات:", err.message)
     errorMessage.value = "تعذر جلب الإشعارات. حاول لاحقاً."
   } finally {
     isLoading.value = false
-  }
-}
-
-async function deleteNotification(n) {
-  try {
-    if (n.source === "transaction") {
-      const { error } = await supabase
-        .from("transactions")
-        .update({ notify: null })
-        .eq("id", n.id)
-      if (error) throw error
-    } else if (n.source === "booking") {
-      const { error } = await supabase
-        .from("bookings")
-        .update({ notify: null })
-        .eq("id", n.id)
-      if (error) throw error
-    }
-
-    notifications.value = notifications.value.filter((x) => x.uid !== n.uid)
-  } catch (err) {
-    console.error("❌ خطأ أثناء حذف الإشعار:", err.message)
-  }
-}
-
-async function deleteAll() {
-  try {
-    await supabase
-      .from("transactions")
-      .update({ notify: null })
-      .eq("user_id", userStore.user.id)
-
-    await supabase
-      .from("bookings")
-      .update({ notify: null })
-      .eq("user_id", userStore.user.id)
-
-    notifications.value = []
-  } catch (err) {
-    console.error("❌ خطأ أثناء حذف جميع الإشعارات:", err.message)
   }
 }
 
@@ -113,23 +46,16 @@ watch(
   <div class="notifications-page">
     <div class="header">
       <h2>الإشعارات</h2>
-      <button
-        v-if="notifications.length"
-        @click="deleteAll"
-        class="delete-all"
-      >
-        حذف الكل
-      </button>
     </div>
 
     <p v-if="isLoading">⏳ جاري التحميل...</p>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
     <ul v-if="!isLoading && notifications.length">
-      <li v-for="n in notifications" :key="n.uid">
-        <span>{{ n.message }}</span>
+      <li v-for="n in notifications" :key="`${n.source}-${n.id}`">
+        <span>{{ n.notify }}</span>
         <small>({{ n.source }})</small>
-        <button @click="deleteNotification(n)">حذف</button>
+        <small>{{ new Date(n.created_at).toLocaleString() }}</small>
       </li>
     </ul>
 
@@ -138,3 +64,4 @@ watch(
     </p>
   </div>
 </template>
+
