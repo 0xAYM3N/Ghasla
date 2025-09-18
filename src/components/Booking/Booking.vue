@@ -108,7 +108,7 @@ async function submitBookingForm() {
     const bookingData = {
       user_id: currentUser.value.id,
       type: selectedType.value,
-      location: JSON.stringify(markerPosition.value),
+      location: markerPosition.value,
       price: selectedPrice.value,
       datetime: datetime.value,
       status: "قيد الانتظار",
