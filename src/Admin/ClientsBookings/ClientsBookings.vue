@@ -39,7 +39,7 @@ async function updateBookingStatus(booking, newStatus) {
     const { error } = await supabase
       .from("bookings")
       .update({ status: newStatus })
-      .eq("id", booking.id) 
+      .eq("id", booking.id)
     if (error) throw error
   } catch (err) {
     console.error("❌ خطأ أثناء تحديث الحالة:", err.message)
@@ -59,6 +59,19 @@ function openMapModal(booking) {
 
 function closeMapModal() {
   showMapModal.value = false
+}
+
+function formatDateTime(unix) {
+  if (!unix) return "-"
+  const d = new Date(unix * 1000)
+  return d.toLocaleString("ar", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  })
 }
 
 const filteredBookings = computed(() => {
@@ -116,6 +129,7 @@ onMounted(loadData)
             <tr>
               <th>رقم الحجز</th>
               <th>الخدمة</th>
+              <th>التاريخ والوقت</th>
               <th>السعر</th>
               <th>الحالة</th>
               <th>إيميل العميل</th>
@@ -126,6 +140,7 @@ onMounted(loadData)
             <tr v-for="(b, index) in filteredBookings" :key="b.id">
               <td>{{ index + 1 }}</td>
               <td>{{ b.type }}</td>
+              <td>{{ formatDateTime(b.datetime) }}</td>
               <td>{{ b.price }}$</td>
               <td>
                 <select
