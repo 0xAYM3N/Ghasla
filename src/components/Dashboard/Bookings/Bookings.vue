@@ -8,7 +8,6 @@ const showPopup = ref(false)
 const popupMessage = ref("")
 const bookingToCancel = ref(null)
 const bookings = ref([])
-const loadingCancel = ref(false) 
 
 const userStore = useUserStore()
 
@@ -21,7 +20,6 @@ function openPopup(msg, id) {
 function closePopup() {
   showPopup.value = false
   bookingToCancel.value = null
-  loadingCancel.value = false
 }
 
 async function loadBookings() {
@@ -45,9 +43,7 @@ function cancelBooking(id) {
 }
 
 async function confirmCancel() {
-  if (!bookingToCancel.value || loadingCancel.value) return
-
-  loadingCancel.value = true 
+  if (!bookingToCancel.value) return
 
   try {
     const { error: updateError } = await supabase
@@ -64,7 +60,7 @@ async function confirmCancel() {
     console.error("❌ خطأ أثناء إلغاء الحجز:", error.message)
   }
 
-  closePopup() 
+  closePopup()
 }
 
 function formatDateTime(unix) {
@@ -140,16 +136,11 @@ onMounted(loadBookings)
       <div class="popup-content">
         <h3>{{ popupMessage }}</h3>
         <div class="buttons">
-          <button 
-            class="confirm-cancel" 
-            @click="confirmCancel" 
-            :disabled="loadingCancel"
-          >
-            {{ loadingCancel ? "⏳ جاري التنفيذ..." : "تأكيد الإلغاء" }}
-          </button>
+          <button class="confirm-cancel" @click="confirmCancel">تأكيد الإلغاء</button>
           <button class="close-popup" @click="closePopup">إغلاق</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
