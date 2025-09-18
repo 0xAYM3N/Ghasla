@@ -5,7 +5,6 @@ import "./ClientsBookings.css"
 import ClientMap from "../ClientMap/ClientMap.vue"
 
 const bookings = ref([])
-const users = ref([])
 const loading = ref(true)
 const error = ref(null)
 const filterStatus = ref("all")
@@ -22,28 +21,20 @@ async function loadData() {
 
     const { data: bookingsData, error: bookingsError } = await supabase
       .from("bookings")
-      .select("*")
+      .select(`
+        *,
+        profiles ( email )
+      `)
 
     if (bookingsError) throw bookingsError
 
-    const { data: usersData, error: usersError } = await supabase
-      .from("profiles")
-      .select("id, email")
-
-    if (usersError) throw usersError
-
     bookings.value = bookingsData || []
-    users.value = usersData || []
   } catch (err) {
     error.value = "خطأ أثناء جلب البيانات"
     console.error("loadData error:", err.message)
   } finally {
     loading.value = false
   }
-}
-
-function getUserById(id) {
-  return users.value.find(u => u.id === id)
 }
 
 async function updateBookingStatus(booking, newStatus) {
@@ -87,8 +78,7 @@ const filteredBookings = computed(() => {
       if (searchField.value === "id") return b.id.toString().includes(query)
       if (searchField.value === "type") return b.type?.toLowerCase().includes(query)
       if (searchField.value === "email") {
-        const user = getUserById(b.userId)
-        return user?.email?.toLowerCase().includes(query)
+        return b.profiles?.email?.toLowerCase().includes(query)
       }
       return false
     })
@@ -161,7 +151,7 @@ onMounted(loadData)
                   <option value="ملغى">ملغى</option>
                 </select>
               </td>
-              <td>{{ getUserById(b.userId)?.email || "-" }}</td>
+              <td>{{ b.profiles?.email || "-" }}</td>
               <td>
                 <button class="show-map-btn" @click="openMapModal(b)">
                   عرض موقع العميل
